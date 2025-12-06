@@ -13,3 +13,10 @@ go.work
 **/._.DS_Store
 
 /static/fontawesome*
+
+# Compiled binary
+bloggr
+
+# Docker/Build artifacts
+dist/
+tmp/
