@@ -1,6 +1,6 @@
 Title: My first blog post
 Slug: my-first-blog-post
-Parent: 
+Parent: logs
 Order: 2
 Description: Your cool strap line
 MetaPropertyTitle: Some title
