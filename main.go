@@ -56,6 +56,7 @@ type BlogPost struct {
 	MetaPropertyTitle       string
 	MetaPropertyDescription string
 	MetaOgURL               string
+	FilePath                string
 }
 
 type SidebarData struct {
@@ -155,7 +156,9 @@ func main() {
 				})
 			})
 		} else {
-			log.Printf("Warning: Post titled '%s' has an empty slug and will not be accessible via a unique URL.\n", localPost.Title)
+			if !strings.HasSuffix(localPost.FilePath, "index.md") {
+				log.Printf("Warning: Post titled '%s' has an empty slug and will not be accessible via a unique URL.\n", localPost.Title)
+			}
 		}
 	}
 
@@ -165,7 +168,12 @@ func main() {
 		})
 	})
 
-	r.Run()
+	// Check for PORT environment variable (common in PaaS)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	r.Run(":" + port)
 }
 
 func loadMarkdownPosts(dir string) ([]BlogPost, error) {
@@ -187,6 +195,7 @@ func loadMarkdownPosts(dir string) ([]BlogPost, error) {
 			if err != nil {
 				return nil, err
 			}
+			post.FilePath = path
 
 			posts = append(posts, post)
 		}

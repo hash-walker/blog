@@ -1,0 +1,14 @@
+# Git
+.git
+.gitignore
+
+# Build output
+dist
+bloggr
+
+# OS generated files
+.DS_Store
+
+# Editor files
+.vscode
+.idea
