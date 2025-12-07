@@ -77,6 +77,10 @@ ignoreErrors = ["additional-script-loading-error"] # ignore error of loading add
     name = 'Journal'
     url = '/journal/'
     weight = 40
+  [[Languages.en-gb.menu.main]]
+    name = 'Resume'
+    url = '/resume.pdf'
+    weight = 50
 
 [Languages.en-gb.params]
   sitename = "Hash Walker's Blog"

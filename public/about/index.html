@@ -131,6 +131,13 @@ stroke-linejoin="round" class="feather feather-home">
                     
                 </li>
                 
+                <li>
+                    <a class="menu-link " href="/blog/resume.pdf">
+                        Resume
+                    </a>
+                    
+                </li>
+                
                 <li class="menu-separator">
                     <span>|</span>
                 </li>
@@ -202,6 +209,14 @@ stroke-linejoin="round" class="feather feather-home">
 <li><strong>LinkedIn:</strong> <a href="https://www.linkedin.com/in/hamzaxfaraz">linkedin.com/in/hamzaxfaraz</a></li>
 <li><strong>GitHub:</strong> <a href="https://github.com/hash-walker">github.com/hash-walker</a></li>
 </ul>
+<a href="/resume.pdf" class="btn-download" target="_blank" rel="noopener noreferrer">
+    <span>Download Resume</span>
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+    </svg>
+</a>
 <style>
 @keyframes fadeInUp {
     from {
@@ -216,6 +231,26 @@ stroke-linejoin="round" class="feather feather-home">
 
 article .page-content {
     animation: fadeInUp 0.8s ease-out forwards;
+}
+
+.btn-download {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #2d89ef; /* Matches tile color */
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-download:hover {
+    background-color: #1a6fb0;
+    transform: translateY(-2px);
+    color: white;
 }
 </style>
 
