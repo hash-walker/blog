@@ -19,6 +19,10 @@
             max-width: 100%;
             border-bottom: 0px solid var(--border-color, rgba(255, 255, 255, 0.1));
             z-index: 1000;
+            position: sticky;
+            top: 0;
+            background-color: var(--navbar-bg, rgba(17, 17, 17, 0.92));
+            backdrop-filter: blur(6px);
         }
 
         .navbar .menu {
@@ -153,6 +157,12 @@
             .main-content {
                 order: 1;
                 width: 100%;
+            }
+        }
+
+        @media (min-width: 901px) {
+            .sidebar {
+                top: 80px;
             }
         }
 
