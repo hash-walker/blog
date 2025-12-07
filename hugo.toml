@@ -79,12 +79,12 @@ ignoreErrors = ["additional-script-loading-error"] # ignore error of loading add
     weight = 40
 
 [Languages.en-gb.params]
-  sitename = "Awesome hugo blog"
+  sitename = "Hash Walker's Blog"
   defaultColor = "dark" # set color mode: dark, light, auto
   # Setting it to 'auto' applies the color scheme based on the visitor's device color preference.If you don't specify anything, ignore this parameter, or leave it blank,
   # the default value is set to 'auto'.
   # You can take a look at layouts/index.html for more information.
-  description = "Minimal Hugo blog theme with light and dark mode support"
+  description = "A place to share my thoughts and experiences"
   mainSections = ['posts', 'journal']
   toc = true # set to false to disable table of contents 'globally'
   tocOpen = false # set to true to open table of contents by default

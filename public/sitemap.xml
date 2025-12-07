@@ -2,32 +2,35 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>http://localhost:1314/blog/posts/containers-vs-vms/</loc>
+    <loc>http://localhost:1315/blog/posts/containers-vs-vms/</loc>
     <lastmod>2025-12-07T14:21:30+05:00</lastmod>
   </url><url>
-    <loc>http://localhost:1314/blog/</loc>
+    <loc>http://localhost:1315/blog/</loc>
     <lastmod>2025-12-07T14:21:30+05:00</lastmod>
   </url><url>
-    <loc>http://localhost:1314/blog/posts/</loc>
+    <loc>http://localhost:1315/blog/posts/</loc>
     <lastmod>2025-12-07T14:21:30+05:00</lastmod>
   </url><url>
-    <loc>http://localhost:1314/blog/journal/logs/</loc>
+    <loc>http://localhost:1315/blog/about/</loc>
+    <lastmod>2025-12-07T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1315/blog/journal/logs/</loc>
     <lastmod>2025-12-06T14:21:30+05:00</lastmod>
   </url><url>
-    <loc>http://localhost:1314/blog/journal/</loc>
+    <loc>http://localhost:1315/blog/journal/</loc>
     <lastmod>2025-12-06T14:21:30+05:00</lastmod>
   </url><url>
-    <loc>http://localhost:1314/blog/journal/logs/journel_2025-12-06/</loc>
+    <loc>http://localhost:1315/blog/journal/logs/journel_2025-12-06/</loc>
     <lastmod>2025-12-06T14:21:30+05:00</lastmod>
   </url><url>
-    <loc>http://localhost:1314/blog/journal/logs/journel_2025-12-07/</loc>
+    <loc>http://localhost:1315/blog/journal/logs/journel_2025-12-07/</loc>
   </url><url>
-    <loc>http://localhost:1314/blog/categories/</loc>
+    <loc>http://localhost:1315/blog/categories/</loc>
   </url><url>
-    <loc>http://localhost:1314/blog/journal/projects/</loc>
+    <loc>http://localhost:1315/blog/journal/projects/</loc>
   </url><url>
-    <loc>http://localhost:1314/blog/tags/</loc>
+    <loc>http://localhost:1315/blog/tags/</loc>
   </url><url>
-    <loc>http://localhost:1314/blog/journal/weekly-review/</loc>
+    <loc>http://localhost:1315/blog/journal/weekly-review/</loc>
   </url>
 </urlset>
