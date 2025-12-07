@@ -108,6 +108,7 @@
             box-sizing: border-box;
             flex: 1;
             /* Pushes footer down */
+            align-items: start;
         }
 
         .main-content {
@@ -131,6 +132,7 @@
             overflow-y: auto;
             border-right: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
             padding-right: 20px;
+            align-self: start;
         }
 
         /* Responsive Design */
@@ -179,6 +181,14 @@
 
             .navbar .menu .menu-icon svg {
                 transform: translateY(2px);
+            }
+
+            .navbar .logo {
+                padding-left: 12px;
+            }
+
+            .navbar label[for="menu-trigger"] {
+                padding-right: 12px;
             }
 
             /* Show hamburger only on mobile */
