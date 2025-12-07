@@ -1,0 +1,14 @@
+{{/*
+Usage:
+{{< private>}}
+    This text is only visible when running "hugo server" locally.
+    It will NOT appear in the public build.
+    {{< /private>}}
+        */}}
+        {{ if hugo.IsServer }}
+        <div
+            style="background-color: #f0f0f0; border-left: 5px solid #333; padding: 10px; margin: 10px 0; font-style: italic; color: #555;">
+            <strong>[PRIVATE LOG]:</strong><br>
+            {{ .Inner | markdownify }}
+        </div>
+        {{ end }}
