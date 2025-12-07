@@ -2,33 +2,33 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>http://localhost:1313/blog/journal/logs/</loc>
+    <loc>/journal/logs/</loc>
     <lastmod>2025-12-07T15:56:35+05:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/blog/</loc>
+    <loc>/</loc>
     <lastmod>2025-12-07T15:56:35+05:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/blog/journal/</loc>
+    <loc>/journal/</loc>
     <lastmod>2025-12-07T15:56:35+05:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/blog/posts/containers-vs-vms/</loc>
+    <loc>/posts/containers-vs-vms/</loc>
     <lastmod>2025-12-07T14:21:30+05:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/blog/posts/</loc>
-    <lastmod>2025-12-07T14:21:30+05:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/blog/about/</loc>
+    <loc>/about/</loc>
     <lastmod>2025-12-07T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/blog/journal/logs/journel_2025-12-06/</loc>
+    <loc>/posts/</loc>
+    <lastmod>2025-12-07T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>/journal/logs/journel_2025-12-06/</loc>
     <lastmod>2025-12-06T14:21:30+05:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/blog/categories/</loc>
+    <loc>/categories/</loc>
   </url><url>
-    <loc>http://localhost:1313/blog/journal/projects/</loc>
+    <loc>/journal/projects/</loc>
   </url><url>
-    <loc>http://localhost:1313/blog/tags/</loc>
+    <loc>/tags/</loc>
   </url><url>
-    <loc>http://localhost:1313/blog/journal/weekly-review/</loc>
+    <loc>/journal/weekly-review/</loc>
   </url>
 </urlset>

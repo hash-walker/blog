@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en-gb">
 
-<head><script src="/blog/livereload.js?mindelay=10&amp;v=2&amp;port=1315&amp;path=blog/livereload" data-no-instant defer></script>
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1314&amp;path=livereload" data-no-instant defer></script>
     <head><meta charset="utf-8">
 <meta http-equiv="content-type" content="text/html">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,7 +21,7 @@
 <meta property="og:locale" content="en-gb" />
 <meta name="language" content="en-gb" />
 
-  <link rel="alternate" hreflang="en-gb" href="http://localhost:1315/blog/journal/" title="English" />
+  <link rel="alternate" hreflang="en-gb" href="//localhost:1314/journal/" title="English" />
 
 
 
@@ -34,7 +34,7 @@
     <meta property="og:title" content="Journal" />
 <meta property="og:description" content="A place to share my thoughts and experiences" />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="http://localhost:1315/blog/journal/" />
+<meta property="og:url" content="//localhost:1314/journal/" />
 
 
 
@@ -45,31 +45,31 @@
 
     
 
-    <link rel="canonical" href="http://localhost:1315/blog/journal/">
-    <link href="/blog/journal/index.xml" rel="alternate" type="application/rss+xml" title="Hash Walker&#39;s Blog">
-    <link href="/blog/journal/index.xml" rel="feed" type="application/rss+xml" title="Hash Walker&#39;s Blog">
-    <link href="/blog/style.min.2d921c18cf1ec555ffc03d59a8adc211c402c68c930c27d6a0c306ab175a8d09.css" rel="stylesheet">
-    <link href="/blog/code-highlight.min.706d31975fec544a864cb7f0d847a73ea55ca1df91bf495fd12a177138d807cf.css" rel="stylesheet">
+    <link rel="canonical" href="//localhost:1314/journal/">
+    <link href="../journal/index.xml" rel="alternate" type="application/rss+xml" title="Hash Walker&#39;s Blog">
+    <link href="../journal/index.xml" rel="feed" type="application/rss+xml" title="Hash Walker&#39;s Blog">
+    <link href="../style.min.2d921c18cf1ec555ffc03d59a8adc211c402c68c930c27d6a0c306ab175a8d09.css" rel="stylesheet">
+    <link href="../code-highlight.min.706d31975fec544a864cb7f0d847a73ea55ca1df91bf495fd12a177138d807cf.css" rel="stylesheet">
 
     
-    <link rel="apple-touch-icon" sizes="180x180" href="/blog/icons/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/blog/icons/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/blog/icons/favicon-16x16.png">
-    <link rel="mask-icon" href="/blog/icons/safari-pinned-tab.svg">
-    <link rel="shortcut icon" href="/blog/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../icons/favicon-16x16.png">
+    <link rel="mask-icon" href="../icons/safari-pinned-tab.svg">
+    <link rel="shortcut icon" href="../favicon.ico">
 
 
 
 
-<link rel="manifest" href="http://localhost:1315/blog/site.webmanifest">
+<link rel="manifest" href="//localhost:1314/site.webmanifest">
 
-<meta name="msapplication-config" content="/blog/browserconfig.xml">
+<meta name="msapplication-config" content="/browserconfig.xml">
 <meta name="msapplication-TileColor" content="#2d89ef">
 <meta name="theme-color" content="#434648">
     <meta name="color-scheme" content="light dark">
 
     
-    <link rel="icon" type="image/svg+xml" href="/blog/icons/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="../icons/favicon.svg">
 
     
     
@@ -81,9 +81,77 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            margin: 0;
+            padding: 0;
         }
 
          
+        .navbar {
+            width: 100%;
+            max-width: 100%;
+            border-bottom: 0px solid var(--border-color, rgba(255, 255, 255, 0.1));
+            z-index: 1000;
+        }
+
+        .navbar .menu {
+            max-width: 1200px;
+             
+            margin: 0 auto;
+            padding: 0 20px;
+            box-sizing: border-box;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .navbar .logo,
+        .navbar label[for="menu-trigger"] {
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+
+        .navbar .menu .trigger {
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar .trigger-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .navbar .trigger-container li {
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar .menu .menu-link,
+        .navbar .menu .menu-separator,
+        .navbar .menu #mode {
+            display: flex;
+            align-items: center;
+            line-height: 1.4;
+        }
+
+        .navbar .menu .menu-separator span {
+            display: inline-block;
+        }
+
+        .navbar .menu a#mode {
+            gap: 6px;
+        }
+
+        .navbar .menu .menu-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
          
         .main-container {
@@ -103,6 +171,13 @@
         .main-content {
             min-width: 0;
             width: 100%;
+        }
+
+         
+        .main-container.blurry,
+        body.menu-open .main-container {
+            filter: blur(4px);
+            transition: filter 0.2s ease;
         }
 
          
@@ -133,18 +208,97 @@
                 margin-bottom: 20px;
                 max-height: none;
                 overflow-y: visible;
+                order: 2;
+                width: 100%;
             }
+
+            .main-content {
+                order: 1;
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar .menu {
+                padding: 0 12px;
+                align-items: center;
+            }
+
+            .navbar .menu .trigger {
+                width: auto;
+                gap: 10px;
+            }
+
+            .navbar .trigger-container {
+                flex-direction: row;
+                flex-wrap: wrap;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                width: auto;
+            }
+
+            .navbar .trigger-container li {
+                width: auto;
+                justify-content: center;
+            }
+
+            .navbar .menu .menu-link,
+            .navbar .menu .theme-switch,
+            .navbar label[for="menu-trigger"] {
+                justify-content: center;
+                width: auto;
+                text-align: center;
+            }
+        }
+
+         
+        .theme-switch {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-color, #eaeaea);
+            position: relative;
+            z-index: 2000;
+             
+        }
+
+        .theme-switch svg {
+            transition: all 0.2s ease;
+            stroke: currentColor;
+        }
+
+        .theme-switch:hover {
+            color: var(--primary-color, #2d89ef);
+        }
+
+         
+        body[data-theme='dark'] .mode-moon {
+            display: none;
+        }
+
+        body[data-theme='dark'] .mode-sun {
+            display: block;
+        }
+
+        body[data-theme='light'] .mode-sun {
+            display: none;
+        }
+
+        body[data-theme='light'] .mode-moon {
+            display: block;
         }
     </style>
 </head>
 
 <body data-theme="dark" class="notransition">
-    <script src="/blog/js/theme.js"></script>
+    <script src="../js/theme.js"></script>
 
     
     <div class="navbar" role="navigation">
         <nav class="menu" aria-label="Main Navigation">
-            <a href="http://localhost:1315/blog/" class="logo">
+            <a href="//localhost:1314/" class="logo">
                 <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                     class="feather feather-home">
@@ -174,19 +328,19 @@
                 <ul class="trigger-container">
                     
                     <li>
-                        <a class="menu-link " href="/blog/">
+                        <a class="menu-link " href="../">
                             Home
                         </a>
                     </li>
                     
                     <li>
-                        <a class="menu-link " href="/blog/about/">
+                        <a class="menu-link " href="../about/">
                             About
                         </a>
                     </li>
                     
                     <li>
-                        <a class="menu-link " href="/blog/resume.pdf">
+                        <a class="menu-link " href="../resume.pdf">
                             Resume
                         </a>
                     </li>
@@ -195,7 +349,7 @@
                         <span>|</span>
                     </li>
                     <li class="menu-item theme-switch" title="Switch Theme">
-                        <a href="#">
+                        <a href="#" id="mode" style="display: flex; height: 100%; width: 100%;">
                             <svg xmlns="http://www.w3.org/2000/svg" class="mode-sun" width="21" height="21"
                                 viewBox="0 0 14 14" stroke-width="1">
                                 <title>LIGHT</title>
@@ -260,7 +414,7 @@
         <nav class="sidebar-nav">
             <ul>
                 <li>
-                    <a href="/posts/" class="sidebar-link">
+                    <a href="../posts/" class="sidebar-link">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -273,7 +427,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/journal/" class="sidebar-link">
+                    <a href="../journal/" class="sidebar-link">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
@@ -286,12 +440,12 @@
         </nav>
 
         
-        <h3 class="sidebar-title">Recent Posts</h3>
+        <h3 class="sidebar-title">Posts</h3>
         <nav class="sidebar-nav">
             <ul>
                 
                 <li>
-                    <a href="http://localhost:1315/blog/posts/containers-vs-vms/" class="sidebar-link is-sub">
+                    <a href="//localhost:1314/posts/containers-vs-vms/" class="sidebar-link is-sub">
                         Containers vs. Virtual Machines (VMs)
                     </a>
                 </li>
@@ -325,10 +479,11 @@
                     
                     
                     
-                    <li><a href="http://localhost:1315/blog/journal/logs/journel_2025-12-06/" class="sidebar-link is-sub">journal 2025-12-06</a></li>
+                    <li><a href="//localhost:1314/journal/logs/journel_2025-12-06/" class="sidebar-link is-sub">journal 2025-12-06</a></li>
                     
                     
-                    <li><a href="/journal/logs/" class="sidebar-link is-sub view-all">View All Logs...</a></li>
+                    <li><a href="../journal/logs/" class="sidebar-link is-sub view-all">View All
+                            Logs...</a></li>
                 </ul>
             </details>
 
@@ -350,7 +505,8 @@
                     
                     
                     
-                    <li><a href="/journal/projects/" class="sidebar-link is-sub view-all">View All Projects...</a></li>
+                    <li><a href="../journal/projects/" class="sidebar-link is-sub view-all">View All
+                            Projects...</a></li>
                 </ul>
             </details>
 
@@ -373,8 +529,8 @@
                     
                     
                     
-                    <li><a href="/journal/weekly-review/" class="sidebar-link is-sub view-all">View All Reviews...</a>
-                    </li>
+                    <li><a href="../journal/weekly-review/" class="sidebar-link is-sub view-all">View
+                            All Reviews...</a></li>
                 </ul>
             </details>
 
@@ -483,10 +639,12 @@
         <main class="main-content">
             
 <div class="wrapper list">
-    <main class="page-content" aria-label="Content">
+    <div class="page-content" aria-label="Content">
         <h3 class="posts-item-note">Journal</h3>
         
-    </main>
+        <p>No posts found in this section (journal). Page count: 0</p>
+        
+    </div>
 </div>
 
         </main>
@@ -531,7 +689,7 @@
             
         </a>
         
-        <a href="/index.xml" target="_blank" rel="noopener noreferrer me" title="Rss">
+        <a href="../index.xml" target="_blank" rel="noopener noreferrer me" title="Rss">
             
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -555,10 +713,6 @@
         </svg>
     </a>
     
-
-    <script>
-        
-    </script>
 </body>
 
 </html>

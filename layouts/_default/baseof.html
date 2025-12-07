@@ -9,9 +9,77 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            margin: 0;
+            padding: 0;
         }
 
-        /* Navbar handled by theme (full width) */
+        /* Force Navbar Full Width */
+        .navbar {
+            width: 100%;
+            max-width: 100%;
+            border-bottom: 0px solid var(--border-color, rgba(255, 255, 255, 0.1));
+            z-index: 1000;
+        }
+
+        .navbar .menu {
+            max-width: 1200px;
+            /* Limit content width inside navbar to match main container */
+            margin: 0 auto;
+            padding: 0 20px;
+            box-sizing: border-box;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .navbar .logo,
+        .navbar label[for="menu-trigger"] {
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+
+        .navbar .menu .trigger {
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar .trigger-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .navbar .trigger-container li {
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar .menu .menu-link,
+        .navbar .menu .menu-separator,
+        .navbar .menu #mode {
+            display: flex;
+            align-items: center;
+            line-height: 1.4;
+        }
+
+        .navbar .menu .menu-separator span {
+            display: inline-block;
+        }
+
+        .navbar .menu a#mode {
+            gap: 6px;
+        }
+
+        .navbar .menu .menu-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
         /* Main Container Grid */
         .main-container {
@@ -31,6 +99,13 @@
         .main-content {
             min-width: 0;
             width: 100%;
+        }
+
+        /* Blur content when mobile menu is open */
+        .main-container.blurry,
+        body.menu-open .main-container {
+            filter: blur(4px);
+            transition: filter 0.2s ease;
         }
 
         /* Sticky Sidebar */
@@ -61,13 +136,92 @@
                 margin-bottom: 20px;
                 max-height: none;
                 overflow-y: visible;
+                order: 2;
+                width: 100%;
             }
+
+            .main-content {
+                order: 1;
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar .menu {
+                padding: 0 12px;
+                align-items: center;
+            }
+
+            .navbar .menu .trigger {
+                width: auto;
+                gap: 10px;
+            }
+
+            .navbar .trigger-container {
+                flex-direction: row;
+                flex-wrap: wrap;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                width: auto;
+            }
+
+            .navbar .trigger-container li {
+                width: auto;
+                justify-content: center;
+            }
+
+            .navbar .menu .menu-link,
+            .navbar .menu .theme-switch,
+            .navbar label[for="menu-trigger"] {
+                justify-content: center;
+                width: auto;
+                text-align: center;
+            }
+        }
+
+        /* Theme Switcher */
+        .theme-switch {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-color, #eaeaea);
+            position: relative;
+            z-index: 2000;
+            /* Ensure visibility */
+        }
+
+        .theme-switch svg {
+            transition: all 0.2s ease;
+            stroke: currentColor;
+        }
+
+        .theme-switch:hover {
+            color: var(--primary-color, #2d89ef);
+        }
+
+        /* Logic for Toggling Icons */
+        body[data-theme='dark'] .mode-moon {
+            display: none;
+        }
+
+        body[data-theme='dark'] .mode-sun {
+            display: block;
+        }
+
+        body[data-theme='light'] .mode-sun {
+            display: none;
+        }
+
+        body[data-theme='light'] .mode-moon {
+            display: block;
         }
     </style>
 </head>
 
-<body data-theme="dark" class="notransition">
-    <script src="/blog/js/theme.js"></script>
+<body data-theme="{{ .Site.Params.defaultColor | default "auto" }}" class="notransition">
+    <script src="{{ "js/theme.js" | relURL }}"></script>
 
     <!-- Navbar (Full Width) -->
     <div class="navbar" role="navigation">
@@ -112,7 +266,7 @@
                         <span>|</span>
                     </li>
                     <li class="menu-item theme-switch" title="Switch Theme">
-                        <a href="#">
+                        <a href="#" id="mode" style="display: flex; height: 100%; width: 100%;">
                             <svg xmlns="http://www.w3.org/2000/svg" class="mode-sun" width="21" height="21"
                                 viewBox="0 0 14 14" stroke-width="1">
                                 <title>LIGHT</title>
@@ -184,10 +338,6 @@
         </svg>
     </a>
     {{ end }}
-
-    <script>
-        // Custom script to handle menu trigger if needed, or theme defaults
-    </script>
 </body>
 
 </html>
