@@ -131,7 +131,7 @@ url = "https://linkedin.com/in/hamzaxfaraz"
 
 [[params.socialIcons]]
 name = "Rss"
-url = "/index.xml"
+url = "/blog/index.xml"
 
 
 [caches]
