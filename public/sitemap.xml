@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>http://localhost:1314/</loc>
+    <lastmod>2025-11-07T13:28:56+05:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1314/posts/my-first-md/</loc>
+    <lastmod>2025-11-07T13:28:56+05:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1314/posts/</loc>
+    <lastmod>2025-11-07T13:28:56+05:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1314/journal/logs/</loc>
+    <lastmod>2025-11-07T13:27:58+05:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1314/journal/</loc>
+    <lastmod>2025-11-07T13:27:58+05:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1314/journal/logs/my-first-md/</loc>
+    <lastmod>2025-11-07T13:27:58+05:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1314/posts/second-md/</loc>
+  </url><url>
+    <loc>http://localhost:1314/categories/</loc>
+  </url><url>
+    <loc>http://localhost:1314/journal/projects/</loc>
+  </url><url>
+    <loc>http://localhost:1314/tags/</loc>
+  </url><url>
+    <loc>http://localhost:1314/journal/weekly-review/</loc>
+  </url>
+</urlset>
