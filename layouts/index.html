@@ -1,0 +1,24 @@
+{{ define "main" }}
+<div class="wrapper index">
+    <div class="author">
+        {{ if .Site.Params.author.avatar }}
+        <img class="author-avatar" src="{{ .Site.Params.author.avatar | relURL }}" alt="{{ .Site.Params.author.name }}"
+            width="70" height="70" />
+        {{ end }}
+        <h2 class="author-name">{{ .Site.Params.author.intro }}</h2>
+        <p class="author-bio">{{ .Site.Params.author.description }}</p>
+    </div>
+
+    <main aria-label="Content">
+        <h3 class="posts-item-note" aria-label="Recent Posts">Recent Posts</h3>
+        {{ range first 5 .Site.RegularPages }}
+        <article class="post-item">
+            <h4 class="post-item-title">
+                <a href="{{ .Permalink }}">{{ .Title }}</a>
+            </h4>
+            <time class="post-item-meta">{{ .Date.Format "2 Jan 2006" }}</time>
+        </article>
+        {{ end }}
+    </main>
+</div>
+{{ end }}

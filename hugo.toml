@@ -63,20 +63,10 @@ ignoreErrors = ["additional-script-loading-error"] # ignore error of loading add
     url = '/'
     weight = 10
   [[Languages.en-gb.menu.main]]
-    pageRef="posts"
-    name = 'Posts'
-    url = '/posts/'
-    weight = 20
-  [[Languages.en-gb.menu.main]]
     pageRef="about"
     name = 'About'
     url = '/about/'
     weight = 30
-  [[Languages.en-gb.menu.main]]
-    pageRef="journal"
-    name = 'Journal'
-    url = '/journal/'
-    weight = 40
   [[Languages.en-gb.menu.main]]
     name = 'Resume'
     url = '/resume.pdf'

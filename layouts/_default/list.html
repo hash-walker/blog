@@ -1,0 +1,15 @@
+{{ define "main" }}
+<div class="wrapper list">
+    <main class="page-content" aria-label="Content">
+        <h3 class="posts-item-note">{{ .Title }}</h3>
+        {{ range .Paginator.Pages }}
+        <article class="post-item">
+            <h4 class="post-item-title">
+                <a href="{{ .Permalink }}">{{ .Title }}</a>
+            </h4>
+            <time class="post-item-meta">{{ .Date.Format "2 Jan 2006" }}</time>
+        </article>
+        {{ end }}
+    </main>
+</div>
+{{ end }}
