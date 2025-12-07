@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Awesome Hugo blog</title>
-    <link>http://localhost:1315/</link>
-    <description>Recent content on Awesome Hugo blog</description>
+    <title>Hash Walker&#39;s Blog</title>
+    <link>http://localhost:1314/blog/</link>
+    <description>Recent content on Hash Walker&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-gb</language>
-    <lastBuildDate>Fri, 07 Nov 2025 13:28:56 +0500</lastBuildDate><atom:link href="http://localhost:1315/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 07 Nov 2025 13:28:56 +0500</lastBuildDate><atom:link href="http://localhost:1314/blog/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>My First Md</title>
-      <link>http://localhost:1315/posts/my-first-md/</link>
+      <link>http://localhost:1314/blog/posts/my-first-md/</link>
       <pubDate>Fri, 07 Nov 2025 13:28:56 +0500</pubDate>
       
-      <guid>http://localhost:1315/posts/my-first-md/</guid>
+      <guid>http://localhost:1314/blog/posts/my-first-md/</guid>
       
       <description> Hello </description>
       
@@ -20,10 +20,10 @@
     
     <item>
       <title>My First Md</title>
-      <link>http://localhost:1315/journal/logs/my-first-md/</link>
+      <link>http://localhost:1314/blog/journal/logs/my-first-md/</link>
       <pubDate>Fri, 07 Nov 2025 13:27:58 +0500</pubDate>
       
-      <guid>http://localhost:1315/journal/logs/my-first-md/</guid>
+      <guid>http://localhost:1314/blog/journal/logs/my-first-md/</guid>
       
       <description>fdlkgdfklgdfklgkdfgl</description>
       
@@ -31,12 +31,12 @@
     
     <item>
       <title></title>
-      <link>http://localhost:1315/posts/second-md/</link>
+      <link>http://localhost:1314/blog/posts/containers-vs-vms/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>http://localhost:1315/posts/second-md/</guid>
+      <guid>http://localhost:1314/blog/posts/containers-vs-vms/</guid>
       
-      <description>dkfjsdkfjdskfjdfkj</description>
+      <description></description>
       
     </item>
     
