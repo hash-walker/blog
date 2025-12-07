@@ -1,0 +1,42 @@
+{{ define "main" }}
+<div class="wrapper list">
+    <div class="page-content" aria-label="Content">
+        <h3 class="posts-item-note">{{ .Title }}</h3>
+
+        {{ range .Sections }}
+        <div class="journal-section" style="margin-bottom: 40px;">
+            <h2 class="section-title"
+                style="margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
+                <a href="{{ .RelPermalink }}" style="text-decoration: none; color: inherit;">{{ .Title }}</a>
+            </h2>
+
+            {{ range .RegularPages }}
+            <article class="post-item">
+                <h4 class="post-item-title">
+                    <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+                </h4>
+                <time class="post-item-meta">{{ .Date.Format "2 Jan 2006" }}</time>
+            </article>
+            {{ else }}
+            <p style="opacity: 0.6; font-style: italic;">No entries yet.</p>
+            {{ end }}
+        </div>
+        {{ end }}
+
+        {{/* Also show direct pages if any (though unlikely with this structure) */}}
+        {{ if .RegularPages }}
+        <div class="journal-section">
+            <h2 class="section-title">Other Entries</h2>
+            {{ range .RegularPages }}
+            <article class="post-item">
+                <h4 class="post-item-title">
+                    <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+                </h4>
+                <time class="post-item-meta">{{ .Date.Format "2 Jan 2006" }}</time>
+            </article>
+            {{ end }}
+        </div>
+        {{ end }}
+    </div>
+</div>
+{{ end }}
