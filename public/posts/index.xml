@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Posts on Hash Walker&#39;s Blog</title>
-    <link>/posts/</link>
+    <link>https://hash-walker.github.io/blog/posts/</link>
     <description>Recent content in Posts on Hash Walker&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-gb</language>
-    <lastBuildDate>Sun, 07 Dec 2025 00:00:00 +0000</lastBuildDate><atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 07 Dec 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://hash-walker.github.io/blog/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Containers vs. Virtual Machines (VMs)</title>
-      <link>/posts/containers-vs-vms/</link>
+      <link>https://hash-walker.github.io/blog/posts/containers-vs-vms/</link>
       <pubDate>Sun, 07 Dec 2025 14:21:30 +0500</pubDate>
       
-      <guid>/posts/containers-vs-vms/</guid>
+      <guid>https://hash-walker.github.io/blog/posts/containers-vs-vms/</guid>
       
       <description>Using Docker: The What, The Why, and The Architecture Context: This is part of my DevOps course. I was reading the book &amp;ldquo;Using Docker: Developing and Deploying Software with Containers&amp;rdquo; by Adrian Mouat.
 The &amp;ldquo;What&amp;rdquo; and &amp;ldquo;Why&amp;rdquo; of Containers Containers are a way to distribute your software with the exact same environment within which it was developed. This makes it hassle-free to set up the environment on every different system where you want to run the software.</description>

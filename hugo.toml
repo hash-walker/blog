@@ -1,5 +1,5 @@
 title = "Hash Walker's Blog"
-baseURL = '/'
+baseURL = 'https://hash-walker.github.io/blog/'
 
 # This is what goes in <html lang="">
 languageCode = 'en-us'
@@ -10,7 +10,7 @@ defaultContentLanguage = "en-gb"
 # Enable emojis globally
 enableEmoji = true
 ignoreErrors = ["additional-script-loading-error"]
-relativeURLs = true
+# relativeURLs = true # Disabled to prevent recursive link issues
 
 # traditional way: theme component resides in directory 'themes'
 # theme = "hugo-blog-awesome"
