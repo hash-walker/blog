@@ -78,6 +78,10 @@ What did I work on today? I worked literally on nothing today What did I learn t
 </head>
 
     <style>
+        :root {
+            --nav-height: 64px;
+        }
+
          
         body {
             display: flex;
@@ -94,9 +98,11 @@ What did I work on today? I worked literally on nothing today What did I learn t
             border-bottom: 0px solid var(--border-color, rgba(255, 255, 255, 0.1));
             z-index: 1000;
             position: sticky;
+            position: -webkit-sticky;
             top: 0;
             background-color: var(--navbar-bg, rgba(17, 17, 17, 0.92));
             backdrop-filter: blur(6px);
+            min-height: var(--nav-height);
         }
 
         .navbar .menu {
@@ -109,6 +115,7 @@ What did I work on today? I worked literally on nothing today What did I learn t
             display: flex;
             align-items: center;
             justify-content: space-between;
+            min-height: var(--nav-height);
         }
 
         .navbar .logo,
@@ -200,6 +207,7 @@ What did I work on today? I worked literally on nothing today What did I learn t
          
         .sidebar {
             position: sticky;
+            position: -webkit-sticky;
             top: 20px;
             height: fit-content;
             max-height: calc(100vh - 40px);
@@ -238,7 +246,8 @@ What did I work on today? I worked literally on nothing today What did I learn t
 
         @media (min-width: 901px) {
             .sidebar {
-                top: 80px;
+                top: calc(var(--nav-height) + 16px);
+                max-height: calc(100vh - var(--nav-height) - 32px);
             }
         }
 
@@ -247,6 +256,7 @@ What did I work on today? I worked literally on nothing today What did I learn t
                 padding: 0 12px;
                 align-items: center;
                 min-height: 52px;
+                min-height: var(--nav-height);
             }
 
             .navbar .logo svg {

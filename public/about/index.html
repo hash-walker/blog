@@ -82,6 +82,10 @@ I enjoy solving complex problems and working on meaningful projects that have re
 </head>
 
     <style>
+        :root {
+            --nav-height: 64px;
+        }
+
          
         body {
             display: flex;
@@ -98,9 +102,11 @@ I enjoy solving complex problems and working on meaningful projects that have re
             border-bottom: 0px solid var(--border-color, rgba(255, 255, 255, 0.1));
             z-index: 1000;
             position: sticky;
+            position: -webkit-sticky;
             top: 0;
             background-color: var(--navbar-bg, rgba(17, 17, 17, 0.92));
             backdrop-filter: blur(6px);
+            min-height: var(--nav-height);
         }
 
         .navbar .menu {
@@ -113,6 +119,7 @@ I enjoy solving complex problems and working on meaningful projects that have re
             display: flex;
             align-items: center;
             justify-content: space-between;
+            min-height: var(--nav-height);
         }
 
         .navbar .logo,
@@ -204,6 +211,7 @@ I enjoy solving complex problems and working on meaningful projects that have re
          
         .sidebar {
             position: sticky;
+            position: -webkit-sticky;
             top: 20px;
             height: fit-content;
             max-height: calc(100vh - 40px);
@@ -242,7 +250,8 @@ I enjoy solving complex problems and working on meaningful projects that have re
 
         @media (min-width: 901px) {
             .sidebar {
-                top: 80px;
+                top: calc(var(--nav-height) + 16px);
+                max-height: calc(100vh - var(--nav-height) - 32px);
             }
         }
 
@@ -251,6 +260,7 @@ I enjoy solving complex problems and working on meaningful projects that have re
                 padding: 0 12px;
                 align-items: center;
                 min-height: 52px;
+                min-height: var(--nav-height);
             }
 
             .navbar .logo svg {
