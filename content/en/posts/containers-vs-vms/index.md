@@ -1,7 +1,7 @@
 ---
-title = "Containers vs. Virtual Machines (VMs)"
-date = 2025-12-07T14:21:30+05:00
-draft = false
+title: "Containers vs. Virtual Machines (VMs)"
+date: 2025-12-07T14:21:30+05:00
+draft: false
 ---
 
 # Using Docker: The What, The Why, and The Architecture
