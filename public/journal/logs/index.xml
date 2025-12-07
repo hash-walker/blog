@@ -2,32 +2,20 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Daily Logs on Hash Walker&#39;s Blog</title>
-    <link>http://localhost:1315/blog/journal/logs/</link>
+    <link>http://localhost:1314/blog/journal/logs/</link>
     <description>Recent content in Daily Logs on Hash Walker&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-gb</language>
-    <lastBuildDate>Sat, 06 Dec 2025 14:21:30 +0500</lastBuildDate><atom:link href="http://localhost:1315/blog/journal/logs/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 07 Dec 2025 15:56:35 +0500</lastBuildDate><atom:link href="http://localhost:1314/blog/journal/logs/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>log 2025-12-06</title>
-      <link>http://localhost:1315/blog/journal/logs/journel_2025-12-06/</link>
+      <link>http://localhost:1314/blog/journal/logs/journel_2025-12-06/</link>
       <pubDate>Sat, 06 Dec 2025 14:21:30 +0500</pubDate>
       
-      <guid>http://localhost:1315/blog/journal/logs/journel_2025-12-06/</guid>
+      <guid>http://localhost:1314/blog/journal/logs/journel_2025-12-06/</guid>
       
       <description>Saturday, December 06, 2025
 What did I work on today? I worked literally on nothing today What did I learn today? Topic: Containers vs VM&amp;rsquo;s (Book: Using docker by Adrian Mouat) The Why: Solves &amp;ldquo;it works on my machine.&amp;rdquo; Containers bundle app + libs (user space) but share the Host Kernel. Key Architecture Difference: VM&amp;rsquo;s: Hardware → HostOS → Hypervisor → GuestOS(heavy) → App Containers: Hardware → HostOS → Container Engine → No GuestOS (light) → App Performance: VM calls are expensive (Guest Kernel → Hypervisor → Host Kernel → Hardware), Containers run as native processes on HostOS, making it&amp;rsquo;s startup fast.</description>
-      
-    </item>
-    
-    <item>
-      <title></title>
-      <link>http://localhost:1315/blog/journal/logs/journel_2025-12-07/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>http://localhost:1315/blog/journal/logs/journel_2025-12-07/</guid>
-      
-      <description>Sunday, December 07, 2025
-What did I work on today? What did I learn today? Any blockers? </description>
       
     </item>
     
