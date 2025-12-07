@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Hash Walker&#39;s Blog</title>
-    <link>https://hash-walker.github.io/blog/</link>
+    <link>http://localhost:1315/blog/</link>
     <description>Recent content on Hash Walker&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-gb</language>
-    <lastBuildDate>Sun, 07 Dec 2025 15:56:35 +0500</lastBuildDate><atom:link href="https://hash-walker.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 07 Dec 2025 15:56:35 +0500</lastBuildDate><atom:link href="http://localhost:1315/blog/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Containers vs. Virtual Machines (VMs)</title>
-      <link>https://hash-walker.github.io/blog/posts/containers-vs-vms/</link>
+      <link>http://localhost:1315/blog/posts/containers-vs-vms/</link>
       <pubDate>Sun, 07 Dec 2025 14:21:30 +0500</pubDate>
       
-      <guid>https://hash-walker.github.io/blog/posts/containers-vs-vms/</guid>
+      <guid>http://localhost:1315/blog/posts/containers-vs-vms/</guid>
       
       <description>Using Docker: The What, The Why, and The Architecture Context: This is part of my DevOps course. I was reading the book &amp;ldquo;Using Docker: Developing and Deploying Software with Containers&amp;rdquo; by Adrian Mouat.
 The &amp;ldquo;What&amp;rdquo; and &amp;ldquo;Why&amp;rdquo; of Containers Containers are a way to distribute your software with the exact same environment within which it was developed. This makes it hassle-free to set up the environment on every different system where you want to run the software.</description>
@@ -21,10 +21,10 @@ The &amp;ldquo;What&amp;rdquo; and &amp;ldquo;Why&amp;rdquo; of Containers Conta
     
     <item>
       <title>About Me</title>
-      <link>https://hash-walker.github.io/blog/about/</link>
+      <link>http://localhost:1315/blog/about/</link>
       <pubDate>Sun, 07 Dec 2025 00:00:00 +0000</pubDate>
       
-      <guid>https://hash-walker.github.io/blog/about/</guid>
+      <guid>http://localhost:1315/blog/about/</guid>
       
       <description>Hello! I&amp;rsquo;m Hamza Faraz.
 I am a Computer Science student at Ghulam Ishaq Khan Institute of Engineering Sciences and Technology (GIKI), Class of 2026. I am passionate about Data Structures &amp;amp; Algorithms (DSA), Golang, and building systems that scale.
@@ -35,10 +35,10 @@ I enjoy solving complex problems and working on meaningful projects that have re
     
     <item>
       <title>journal 2025-12-06</title>
-      <link>https://hash-walker.github.io/blog/journal/logs/journel_2025-12-06/</link>
+      <link>http://localhost:1315/blog/journal/logs/journel_2025-12-06/</link>
       <pubDate>Sat, 06 Dec 2025 14:21:30 +0500</pubDate>
       
-      <guid>https://hash-walker.github.io/blog/journal/logs/journel_2025-12-06/</guid>
+      <guid>http://localhost:1315/blog/journal/logs/journel_2025-12-06/</guid>
       
       <description>Saturday, December 06, 2025
 What did I work on today? I worked literally on nothing today What did I learn today? Topic: Containers vs VM&amp;rsquo;s (Book: Using docker by Adrian Mouat) The Why: Solves &amp;ldquo;it works on my machine.&amp;rdquo; Containers bundle app + libs (user space) but share the Host Kernel. Key Architecture Difference: VM&amp;rsquo;s: Hardware → HostOS → Hypervisor → GuestOS(heavy) → App Containers: Hardware → HostOS → Container Engine → No GuestOS (light) → App Performance: VM calls are expensive (Guest Kernel → Hypervisor → Host Kernel → Hardware), Containers run as native processes on HostOS, making it&amp;rsquo;s startup fast.</description>
