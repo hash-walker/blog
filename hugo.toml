@@ -135,3 +135,8 @@ url = "https://linkedin.com/in/hamzaxfaraz"
 [[params.socialIcons]]
 name = "Rss"
 url = "/index.xml"
+
+
+[caches]
+  [caches.images]
+    dir = ':cacheDir/images'

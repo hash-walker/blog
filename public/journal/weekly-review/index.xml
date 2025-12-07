@@ -2,9 +2,9 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Weekly Review on Awesome Hugo blog</title>
-    <link>http://localhost:1314/journal/weekly-review/</link>
+    <link>http://localhost:1315/journal/weekly-review/</link>
     <description>Recent content in Weekly Review on Awesome Hugo blog</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-gb</language><atom:link href="http://localhost:1314/journal/weekly-review/index.xml" rel="self" type="application/rss+xml" />
+    <language>en-gb</language><atom:link href="http://localhost:1315/journal/weekly-review/index.xml" rel="self" type="application/rss+xml" />
   </channel>
 </rss>
