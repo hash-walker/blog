@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en-gb">
 
-<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1314&amp;path=livereload" data-no-instant defer></script>
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1315&amp;path=livereload" data-no-instant defer></script>
     <head><meta charset="utf-8">
 <meta http-equiv="content-type" content="text/html">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,7 +21,7 @@
 <meta property="og:locale" content="en-gb" />
 <meta name="language" content="en-gb" />
 
-  <link rel="alternate" hreflang="en-gb" href="//localhost:1314/posts/containers-vs-vms/" title="English" />
+  <link rel="alternate" hreflang="en-gb" href="//localhost:1315/posts/containers-vs-vms/" title="English" />
 
 
 
@@ -34,7 +34,7 @@
     <meta property="og:type" content="article" />
     <meta property="og:article:published_time" content=2025-12-07T14:21:30&#43;0500 />
     <meta property="article:published_time" content=2025-12-07T14:21:30&#43;0500 />
-    <meta property="og:url" content="//localhost:1314/posts/containers-vs-vms/" />
+    <meta property="og:url" content="//localhost:1315/posts/containers-vs-vms/" />
 
     
     <meta property="og:article:author" content="Hash Walker" />
@@ -78,7 +78,7 @@
 <meta property="og:description" content="Using Docker: The What, The Why, and The Architecture Context: This is part of my DevOps course. I was reading the book &ldquo;Using Docker: Developing and Deploying Software with Containers&rdquo; by Adrian Mouat.
 The &ldquo;What&rdquo; and &ldquo;Why&rdquo; of Containers Containers are a way to distribute your software with the exact same environment within which it was developed. This makes it hassle-free to set up the environment on every different system where you want to run the software." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="//localhost:1314/posts/containers-vs-vms/" /><meta property="article:section" content="posts" />
+<meta property="og:url" content="//localhost:1315/posts/containers-vs-vms/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2025-12-07T14:21:30+05:00" />
 <meta property="article:modified_time" content="2025-12-07T14:21:30+05:00" />
 
@@ -92,7 +92,7 @@ The &ldquo;What&rdquo; and &ldquo;Why&rdquo; of Containers Containers are a way 
 
     
 
-    <link rel="canonical" href="//localhost:1314/posts/containers-vs-vms/">
+    <link rel="canonical" href="//localhost:1315/posts/containers-vs-vms/">
     <link href="../../style.min.2d921c18cf1ec555ffc03d59a8adc211c402c68c930c27d6a0c306ab175a8d09.css" rel="stylesheet">
     <link href="../../code-highlight.min.706d31975fec544a864cb7f0d847a73ea55ca1df91bf495fd12a177138d807cf.css" rel="stylesheet">
 
@@ -106,7 +106,7 @@ The &ldquo;What&rdquo; and &ldquo;Why&rdquo; of Containers Containers are a way 
 
 
 
-<link rel="manifest" href="//localhost:1314/site.webmanifest">
+<link rel="manifest" href="//localhost:1315/site.webmanifest">
 
 <meta name="msapplication-config" content="/browserconfig.xml">
 <meta name="msapplication-TileColor" content="#2d89ef">
@@ -154,7 +154,8 @@ The &ldquo;What&rdquo; and &ldquo;Why&rdquo; of Containers Containers are a way 
         .navbar label[for="menu-trigger"] {
             display: flex;
             align-items: center;
-            height: 100%;
+            justify-content: center;
+            height: 44px;
         }
 
         .navbar .menu .trigger {
@@ -193,9 +194,18 @@ The &ldquo;What&rdquo; and &ldquo;Why&rdquo; of Containers Containers are a way 
         }
 
         .navbar .menu .menu-icon {
-            display: flex;
+            display: none;
             align-items: center;
             justify-content: center;
+        }
+
+         
+        .navbar .menu .menu-trigger {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+            width: 0;
+            height: 0;
         }
 
          
@@ -267,6 +277,20 @@ The &ldquo;What&rdquo; and &ldquo;Why&rdquo; of Containers Containers are a way 
             .navbar .menu {
                 padding: 0 12px;
                 align-items: center;
+                min-height: 52px;
+            }
+
+            .navbar .logo svg {
+                transform: translateY(-2px);
+            }
+
+            .navbar .menu .menu-icon svg {
+                transform: translateY(2px);
+            }
+
+             
+            .navbar .menu .menu-icon {
+                display: block;
             }
 
             .navbar .menu .trigger {
@@ -294,6 +318,7 @@ The &ldquo;What&rdquo; and &ldquo;Why&rdquo; of Containers Containers are a way 
                 justify-content: center;
                 width: auto;
                 text-align: center;
+                height: 44px;
             }
         }
 
@@ -343,7 +368,7 @@ The &ldquo;What&rdquo; and &ldquo;Why&rdquo; of Containers Containers are a way 
     
     <div class="navbar" role="navigation">
         <nav class="menu" aria-label="Main Navigation">
-            <a href="//localhost:1314/" class="logo">
+            <a href="//localhost:1315/" class="logo">
                 <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                     class="feather feather-home">
@@ -490,7 +515,7 @@ The &ldquo;What&rdquo; and &ldquo;Why&rdquo; of Containers Containers are a way 
             <ul>
                 
                 <li>
-                    <a href="//localhost:1314/posts/containers-vs-vms/" class="sidebar-link is-sub">
+                    <a href="//localhost:1315/posts/containers-vs-vms/" class="sidebar-link is-sub">
                         Containers vs. Virtual Machines (VMs)
                     </a>
                 </li>
@@ -524,7 +549,7 @@ The &ldquo;What&rdquo; and &ldquo;Why&rdquo; of Containers Containers are a way 
                     
                     
                     
-                    <li><a href="//localhost:1314/journal/logs/journel_2025-12-06/" class="sidebar-link is-sub">journal 2025-12-06</a></li>
+                    <li><a href="//localhost:1315/journal/logs/journel_2025-12-06/" class="sidebar-link is-sub">journal 2025-12-06</a></li>
                     
                     
                     <li><a href="../../journal/logs/" class="sidebar-link is-sub view-all">View All

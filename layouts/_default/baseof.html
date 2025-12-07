@@ -37,7 +37,8 @@
         .navbar label[for="menu-trigger"] {
             display: flex;
             align-items: center;
-            height: 100%;
+            justify-content: center;
+            height: 44px;
         }
 
         .navbar .menu .trigger {
@@ -76,9 +77,18 @@
         }
 
         .navbar .menu .menu-icon {
-            display: flex;
+            display: none;
             align-items: center;
             justify-content: center;
+        }
+
+        /* Hide the actual checkbox; label acts as the button */
+        .navbar .menu .menu-trigger {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+            width: 0;
+            height: 0;
         }
 
         /* Main Container Grid */
@@ -150,6 +160,20 @@
             .navbar .menu {
                 padding: 0 12px;
                 align-items: center;
+                min-height: 52px;
+            }
+
+            .navbar .logo svg {
+                transform: translateY(-2px);
+            }
+
+            .navbar .menu .menu-icon svg {
+                transform: translateY(2px);
+            }
+
+            /* Show hamburger only on mobile */
+            .navbar .menu .menu-icon {
+                display: block;
             }
 
             .navbar .menu .trigger {
@@ -177,6 +201,7 @@
                 justify-content: center;
                 width: auto;
                 text-align: center;
+                height: 44px;
             }
         }
 
