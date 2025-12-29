@@ -1,6 +1,6 @@
 ---
 title: "AWS Networking Guide"
-date: 2025-12-029T12:30:30+05:00
+date: 2025-12-29T12:30:30+05:00
 draft: false
 ---
 
