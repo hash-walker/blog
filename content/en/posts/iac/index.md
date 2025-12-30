@@ -1,18 +1,12 @@
----
-title: "Hands on IaC Using Terraforms"
-date: 2025-12-30T12:30:30+05:00
-draft: false
+# Hands-On Infrastructure Deployment with Terraform: A Practice Guide
+
 ---
 
-
-# Hands-On Infrastructure Deployment with Terraform: A Step-by-Step Guide
-
-
-Infrastructure as Code (IaC) has revolutionized how we provision and manage cloud resources. Instead of clicking through consoles, we can define our entire infrastructure in human-readable configuration files. In this article, we’ll walk through a hands-on project to deploy a secure, scalable web application architecture on AWS using **Terraform**.
+Infrastructure as Code (IaC) has revolutionized how we provision and manage cloud resources. Instead of clicking through consoles, we can define our entire infrastructure in human-readable configuration files. In this practice project, we’ll walk through a hands-on guide to deploy a secure, scalable web application architecture on AWS using **Terraform**.
 
 We will build a **Virtual Private Cloud (VPC)** with public and private subnets, deploy **EC2 instances** for a web server and a backend service, configure **Security Groups**, and manage **IAM users**—all via code.
 
-By the end of this guide, you will have a fully functioning infrastructure deployed on AWS.
+By the end of this guide, you will have a fully functioning infrastructure deployed on AWS to use as a sandbox for your learning.
 
 ## Prerequisites
 
@@ -24,7 +18,7 @@ Before we start, ensure you have:
 
 We will organize our Terraform configuration into modular files. This is a best practice that keeps our code clean and manageable.
 
-Create a directory for your project (e.g., `cs423-assignment-4`) and let's start creating files one by one.
+Create a directory for your project (e.g., `terraform-practice`) and let's start creating files one by one.
 
 ## Step 1: Providers (providers.tf)
 
@@ -405,10 +399,10 @@ We create an IAM user with AdministratorAccess and generate credentials.
 
 ```hcl
 resource "aws_iam_user" "assignment_user" {
-    name = "terraform_cs423-devops"
+    name = "terraform_practice_admin"
 
     tags = {
-        Description = "Admin user for Devops Assigment 4"
+        Description = "Admin user for Terraform Practice Project"
     }
 }
 
