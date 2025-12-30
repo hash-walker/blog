@@ -1,6 +1,10 @@
-# Hands-On Infrastructure Deployment with Terraform: A Practice Guide
-
 ---
+title: "Hands-On IaC with Terraforms"
+date: 2025-12-30T14:21:30+05:00
+draft: false
+---
+
+# Hands-On Infrastructure Deployment with Terraform: A Practice Guide
 
 Infrastructure as Code (IaC) has revolutionized how we provision and manage cloud resources. Instead of clicking through consoles, we can define our entire infrastructure in human-readable configuration files. In this practice project, we’ll walk through a hands-on guide to deploy a secure, scalable web application architecture on AWS using **Terraform**.
 
