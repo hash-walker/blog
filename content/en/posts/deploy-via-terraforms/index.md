@@ -1,1100 +1,127 @@
 ---
-title: "CI/CD Pipeline: Deploying MERN Stack to AWS with Terraform"
+title: " How to Deploy a MERN Stack App to AWS with Docker and GitHub Actions"
 date: 2025-12-30T14:21:30+05:00
 draft: false
 ---
 
-
-# CI/CD Pipeline: Deploying MERN Stack to AWS with Terraform
-
-This article explains how to deploy a full-stack MERN application (React frontend + Express backend) to AWS EC2 using Terraform for infrastructure and GitHub Actions for CI/CD.
+*A complete guide to setting up CI/CD for your React + Express + MongoDB application*
 
 ---
 
-## Architecture Overview
+If you've built a MERN stack application and want to deploy it to AWS with automated deployments, this guide is for you. We'll walk through the entire process step by step, explaining **why** we make each decision along the way.
 
-![architecture](./architecture.svg)
+## What We're Building
 
-## Key Security Design
+By the end of this guide, you'll have:
+- A **React frontend** running on a public EC2 instance
+- An **Express backend + MongoDB** running on a private EC2 instance
+- **Automated deployments** via GitHub Actions
+- A **secure architecture** where only the frontend is exposed to the internet
 
-| Component | Location | Internet Access | Accessible From |
-|-----------|----------|-----------------|-----------------|
-| **Frontend** | Public Subnet | Direct (via IGW) | Anyone (Port 80) |
-| **Backend** | Private Subnet | Outbound only (via NAT) | Frontend only |
-
-The backend is **never exposed to the internet**. All API requests go through the frontend, which proxies them internally.
+![architecture](./architecture.png)
 
 ---
 
-# Part 1: Terraform Infrastructure
+# The Problem: Private Subnets Have No Internet
 
-## File Structure
+Before we dive into the deployment, we need to understand a key challenge.
+
+## Why Do We Use Private Subnets?
+
+In AWS, we put sensitive services (databases, APIs) in **private subnets** so they can't be accessed from the internet. This is a security best practice.
+
+**But here's the problem:** If a server has no internet access, how can it:
+- Download Docker?
+- Pull Docker images (like `mongo:6`)?
+- Install npm packages?
+
+We have two solutions:
+
+| Solution | Cost | What It Does |
+|----------|------|--------------|
+| **NAT Gateway** | ~$32/month | Gives private subnet full outbound internet access |
+| **VPC Endpoints** | ~$14/month | Creates private tunnels to specific AWS services (like ECR) |
+
+Let's look at both.
+
+---
+
+## Solution 1: NAT Gateway
+
+A **NAT Gateway** acts as a middleman. Your private EC2 sends requests to the NAT Gateway, which forwards them to the internet using its public IP.
 
 ```
-terraform-practice/
-├── providers.tf      # AWS provider configuration
-├── variables.tf      # Input variables
-├── vpc.tf            # VPC and Internet Gateway
-├── subnets.tf        # Subnets and Route Tables
-├── security_groups.tf # Security Groups
-├── key_pair.tf       # SSH Key Pair
-├── iam.tf            # IAM User for CI/CD
-├── instances.tf      # EC2 Instances
-├── outputs.tf        # Output values
-├── ecr-option/       # Alternative: ECR + VPC Endpoints
-└── nginx-option/     # Alternative: Nginx instead of Apache
+Private EC2 → NAT Gateway → Internet Gateway → Internet
+     ↑                              ↓
+     └────────── Response ──────────┘
 ```
 
----
-
-## providers.tf
+### Terraform Code
 
 ```hcl
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
-    tls = {
-      source  = "hashicorp/tls"
-      version = "~> 4.0"
-    }
-    local = {
-      source  = "hashicorp/local"
-      version = "~> 2.0"
-    }
-  }
-}
-
-# Provider Block
-
-provider "aws" {
-  profile = "default"
-  region  = "us-east-1"
-}
-```
-
-**Explanation:**
-- **aws**: Main provider for creating AWS resources
-- **tls**: Generates SSH key pairs programmatically
-- **local**: Saves the private key to a local file
-
----
-
-## variables.tf
-
-```hcl
-variable "ec2_instance_type" {
-  description = "AWS ec2 instance type"
-  type        = string
-  default     = "t3.micro"
-}
-
-variable "vpc_name" {
-  description = "Name of the VPC"
-  type        = string
-  default     = "my-vpc"
-}
-
-variable "vpc_cidr" {
-  description = "vpc cidr"
-  type        = string
-  default     = "10.0.0.0/16"
-}
-
-variable "public_subnet_name_1" {
-  description = "public subnet 1"
-  type        = string
-  default     = "public-subnet-1"
-}
-
-variable "public_subnet_cidr_1" {
-  description = "public subnet cidr 1"
-  type        = string
-  default     = "10.0.0.0/24"
-}
-
-variable "private_subnet_name_1" {
-  description = "private subnet 1"
-  type        = string
-  default     = "private-subnet-1"
-}
-
-variable "private_subnet_cidr_1" {
-  description = "private subnet cidr 1"
-  type        = string
-  default     = "10.0.1.0/24"
-}
-
-variable "public_subnet_name_2" {
-  description = "public subnet 2"
-  type        = string
-  default     = "public-subnet-2"
-}
-
-variable "public_subnet_cidr_2" {
-  description = "public subnet cidr 2"
-  type        = string
-  default     = "10.0.2.0/24"
-}
-
-variable "private_subnet_name_2" {
-  description = "private subnet 2"
-  type        = string
-  default     = "privates-subnet-2"
-}
-
-variable "private_subnet_cidr_2" {
-  description = "private subnet cidr 2"
-  type        = string
-  default     = "10.0.3.0/24"
-}
-
-variable "internet_gw" {
-  description = "internet gateway"
-  type        = string
-  default     = "terraforms_gw"
-}
-
-variable "ec2_ami" {
-  description = "EC2 ubuntu ami"
-  type        = string
-  default     = "ami-0ecb62995f68bb549"
-}
-
-variable "ec2_frontend_1_name" {
-  description = "EC2 frontend in zone 1"
-  type        = string
-  default     = "ec2_frontend_1"
-}
-
-variable "ec2_backend_1_name" {
-  description = "EC2 backend in zone 1"
-  type        = string
-  default     = "ec2_backend_1"
-}
-```
-
-**Why use variables?**
-- Makes infrastructure reusable across environments
-- Easy to change values without modifying code
-- Can override defaults via `terraform.tfvars`
-
----
-
-## vpc.tf
-
-```hcl
-# vpc 
-resource "aws_vpc" "my-vpc" {
-  cidr_block = var.vpc_cidr
-
-  tags = {
-    name = var.vpc_name
-  }
-}
-
-# internet gateway 
-
-resource "aws_internet_gateway" "gw" {
-  vpc_id = aws_vpc.my-vpc.id
-
-  tags = {
-    Name = var.internet_gw
-  }
-}
-```
-
-**Explanation:**
-- **VPC**: Isolated network container (10.0.0.0/16 = 65,536 IPs)
-- **Internet Gateway**: Bridge between VPC and the internet
-
----
-
-## subnets.tf
-
-```hcl
-# public subnet 1
-
-resource "aws_subnet" "public_subnet_1" {
-  vpc_id            = aws_vpc.my-vpc.id
-  cidr_block        = var.public_subnet_cidr_1
-  availability_zone = "us-east-1a"
-
-  tags = {
-    Name = var.public_subnet_name_1
-  }
-}
-
-# private subnet 1
-
-resource "aws_subnet" "private_subnet_1" {
-  vpc_id            = aws_vpc.my-vpc.id
-  cidr_block        = var.private_subnet_cidr_1
-  availability_zone = "us-east-1a"
-
-  tags = {
-    Name = var.private_subnet_name_1
-  }
-}
-
-
-# public subnet 2
-
-resource "aws_subnet" "public_subnet_2" {
-  vpc_id            = aws_vpc.my-vpc.id
-  cidr_block        = var.public_subnet_cidr_2
-  availability_zone = "us-east-1b"
-
-  tags = {
-    Name = var.public_subnet_name_2
-  }
-}
-
-# private subnet 
-
-resource "aws_subnet" "private_subnet_2" {
-  vpc_id            = aws_vpc.my-vpc.id
-  cidr_block        = var.private_subnet_cidr_2
-  availability_zone = "us-east-1b"
-
-  tags = {
-    Name = var.private_subnet_name_2
-  }
-}
-
-# rotue tables public 1 and 2
-
-resource "aws_route_table" "public_RT_1" {
-  vpc_id = aws_vpc.my-vpc.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.gw.id
-  }
-
-  tags = {
-    Name = "public_RT_1"
-  }
-}
-
-resource "aws_route_table" "public_RT_2" {
-  vpc_id = aws_vpc.my-vpc.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.gw.id
-  }
-
-  tags = {
-    Name = "public_RT_2"
-  }
-}
-
-# public subnet association
-
-resource "aws_route_table_association" "public_subnet_assoc_1" {
-  subnet_id      = aws_subnet.public_subnet_1.id
-  route_table_id = aws_route_table.public_RT_1.id
-}
-
-resource "aws_route_table_association" "public_subnet_assoc_2" {
-  subnet_id      = aws_subnet.public_subnet_2.id
-  route_table_id = aws_route_table.public_RT_2.id
-}
-
-
-# route tables private 1 and 2
-
-resource "aws_route_table" "private_RT_1" {
-  vpc_id = aws_vpc.my-vpc.id
-
-  tags = {
-    Name = "private_RT_1"
-  }
-}
-
-resource "aws_route_table" "private_RT_2" {
-  vpc_id = aws_vpc.my-vpc.id
-
-  tags = {
-    Name = "private_RT_2"
-  }
-}
-
-# private subnet association
-
-resource "aws_route_table_association" "private_subnet_assoc_1" {
-  subnet_id      = aws_subnet.private_subnet_1.id
-  route_table_id = aws_route_table.private_RT_1.id
-}
-
-resource "aws_route_table_association" "private_subnet_assoc_2" {
-  subnet_id      = aws_subnet.private_subnet_2.id
-  route_table_id = aws_route_table.private_RT_2.id
-}
-```
-
-**Key Concept:**
-- **Public subnet**: Route table has `0.0.0.0/0 → Internet Gateway`
-- **Private subnet**: No route to internet (or via NAT for outbound only)
-
----
-
-## security_groups.tf
-
-```hcl
-# security groups 
-
-resource "aws_security_group" "web_sg" {
-  name        = "web_sg"
-  description = "allow traffic from anywhere to the website"
-  vpc_id      = aws_vpc.my-vpc.id
-
-  # inbound: ssh from anywhere
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # inbound: HTTP (80) from anywhere
-
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # Outbound: all traffic allowed
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    name = "terraforms-Public-SG"
-  }
-}
-
-resource "aws_security_group" "db_sg" {
-  name        = "db_sg"
-  description = "allow traffic from  the website only"
-  vpc_id      = aws_vpc.my-vpc.id
-
-  # inbound: ssh from anywhere
-
-  ingress {
-    from_port       = 22
-    to_port         = 22
-    protocol        = "tcp"
-    security_groups = [aws_security_group.web_sg.id]
-  }
-
-  # inbound: HTTP (80) from anywhere
-
-  ingress {
-    from_port       = 3306
-    to_port         = 3306
-    protocol        = "tcp"
-    security_groups = [aws_security_group.web_sg.id]
-  }
-
-  # Outbound: all traffic allowed
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    name = "terraforms-Private-SG"
-  }
-}
-```
-
-**Security Design:**
-- `web_sg`: Allows anyone to access ports 22 and 80
-- `db_sg`: Only allows traffic **from instances in web_sg** - not from the internet
-
----
-
-## key_pair.tf
-
-```hcl
-# generating key pairs 
-
-resource "tls_private_key" "terraforms_key" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
-}
-
-resource "aws_key_pair" "terraforms_key" {
-  key_name   = "terraforms-key"
-  public_key = tls_private_key.terraforms_key.public_key_openssh
-}
-
-resource "local_file" "ssh_key" {
-  filename        = "${path.module}/terraforms-key.pem"
-  content         = tls_private_key.terraforms_key.private_key_pem
-  file_permission = "0400"
-}
-```
-
-**Why generate keys in Terraform?**
-- Automated and reproducible
-- Key is saved locally for SSH access
-- Can be retrieved from Terraform state if lost
-
----
-
-## iam.tf
-
-```hcl
-resource "aws_iam_user" "assignment_user" {
-    name = "terraform_practice_admin"
-
-    tags = {
-        Description = "Admin user for Terraform Practice Project"
-    }
-}
-
-resource "aws_iam_user_policy_attachment" "admin_attach" {
-  user        = aws_iam_user.assignment_user.name
-  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
-}
-
-resource "aws_iam_access_key" "assignment_key" {
-    user = aws_iam_user.assignment_user.name
-}
-```
-
-**Purpose:**
-- Creates an IAM user with admin access for CI/CD
-- Generates access keys for GitHub Actions to use AWS CLI
-
----
-
-## instances.tf
-
-```hcl
-# create EC2 instance for web 1 and web 2
-
-resource "aws_instance" "ec2_web_1" {
-  ami           = var.ec2_ami
-  instance_type = var.ec2_instance_type
-
-  subnet_id                   = aws_subnet.public_subnet_1.id
-  vpc_security_group_ids      = [aws_security_group.web_sg.id]
-  associate_public_ip_address = true
-
-  key_name = aws_key_pair.terraforms_key.key_name
-
-  # --- WEB SERVER 1 ---
-  user_data = <<-EOF
-    #!/bin/bash
-    
-    # 1. Simple Fix: Sleep 30s to let Ubuntu initialization finish
-    echo "Waiting for 30 seconds to avoid lock errors..."
-    sleep 30
-    
-    # 2. Update and Install (The -y flag is crucial)
-    apt-get update -y
-    apt-get install nginx -y
-    
-    # 3. Create the web page
-    echo "<h1>Hello from Web Server 1</h1>" > /var/www/html/index.html
-    
-    # 4. Start Nginx
-    systemctl enable nginx
-    systemctl start nginx
-    EOF
-
-  tags = {
-    Name = var.ec2_frontend_1_name
-  }
-}
-
-resource "aws_instance" "ec2_private_1" {
-  ami           = var.ec2_ami
-  instance_type = var.ec2_instance_type
-
-  subnet_id                   = aws_subnet.private_subnet_1.id
-  vpc_security_group_ids      = [aws_security_group.db_sg.id]
-  associate_public_ip_address = false
-
-  key_name = aws_key_pair.terraforms_key.key_name
-
-  user_data = <<-EOF
-    #!/bin/bash
-    sleep 30
-    apt-get update -y
-    apt-get install mysql-server -y
-    systemctl enable mysql
-    systemctl start mysql
-    EOF
-
-  tags = {
-    Name = var.ec2_backend_1_name
-  }
-}
-```
-
-**Key Difference:**
-- Frontend: `associate_public_ip_address = true`
-- Backend: `associate_public_ip_address = false`
-
----
-
-## outputs.tf
-
-```hcl
-output "access_key_id" {
-  value = aws_iam_access_key.assignment_key.id
-}
-
-output "secret_access_key" {
-  value     = aws_iam_access_key.assignment_key.secret
-  sensitive = true
-}
-
-output "web_server_public_ip" {
-  value = aws_instance.ec2_web_1.public_ip
-}
-```
-
----
-
-## nat_gateway.tf
-
-NAT Gateway allows instances in private subnets to access the internet for outbound traffic (like downloading Docker images, npm packages) while remaining inaccessible from the internet.
-
-```hcl
-# --- NAT Gateway for AZ 1 ---
-
-# Elastic IP for NAT Gateway
+# First, we need an Elastic IP (a static public IP address)
 resource "aws_eip" "nat_1" {
   domain = "vpc"
-
-  tags = {
-    Name = "NAT-EIP-AZ1"
-  }
+  tags = { Name = "NAT-EIP" }
 }
 
-# NAT Gateway in public subnet
+# Create the NAT Gateway in the PUBLIC subnet
+# (It needs internet access to forward requests)
 resource "aws_nat_gateway" "nat_1" {
   allocation_id = aws_eip.nat_1.id
   subnet_id     = aws_subnet.public_subnet_1.id
-
-  tags = {
-    Name = "NAT-Gateway-AZ1"
-  }
-
+  
+  tags = { Name = "NAT-Gateway" }
+  
+  # Wait for Internet Gateway to be created first
   depends_on = [aws_internet_gateway.gw]
 }
 
-# --- NAT Gateway for AZ 2 (Optional - for high availability) ---
-
-resource "aws_eip" "nat_2" {
-  domain = "vpc"
-
-  tags = {
-    Name = "NAT-EIP-AZ2"
-  }
-}
-
-resource "aws_nat_gateway" "nat_2" {
-  allocation_id = aws_eip.nat_2.id
-  subnet_id     = aws_subnet.public_subnet_2.id
-
-  tags = {
-    Name = "NAT-Gateway-AZ2"
-  }
-
-  depends_on = [aws_internet_gateway.gw]
-}
-```
-
-**Key Points:**
-- **Elastic IP**: Static public IP assigned to NAT Gateway
-- **Location**: NAT Gateway must be in a **public subnet**
-- **Cost**: ~$32/month per NAT Gateway + data processing charges
-
----
-
-## Private Route Tables with NAT
-
-Update the private route tables to route internet traffic through the NAT Gateway:
-
-```hcl
-# route tables private 1 - with NAT Gateway route
+# Update the PRIVATE route table to use NAT Gateway
 resource "aws_route_table" "private_RT_1" {
   vpc_id = aws_vpc.my-vpc.id
 
+  # All internet traffic (0.0.0.0/0) goes through NAT
   route {
     cidr_block     = "0.0.0.0/0"
     nat_gateway_id = aws_nat_gateway.nat_1.id
   }
 
-  tags = {
-    Name = "private_RT_1"
-  }
-}
-
-resource "aws_route_table" "private_RT_2" {
-  vpc_id = aws_vpc.my-vpc.id
-
-  route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.nat_2.id
-  }
-
-  tags = {
-    Name = "private_RT_2"
-  }
+  tags = { Name = "private_RT_1" }
 }
 ```
 
-**Traffic Flow with NAT Gateway:**
-```
-Private EC2 → Private Route Table → NAT Gateway → Internet Gateway → Internet
-     ↑                                    ↓
-     └──────────── Response ──────────────┘
-```
+**Why This Works:**
+- The private EC2 has no public IP
+- When it needs to reach the internet, it sends packets to the NAT Gateway
+- NAT Gateway uses its Elastic IP to communicate with the internet
+- Responses come back through the same path
 
 ---
 
-# Part 2: Dockerfiles
+## Solution 2: VPC Endpoints (For ECR Only)
 
-## Frontend Dockerfile (Apache Version)
+If you only need to pull Docker images and want to save money, you can use **VPC Endpoints**. These create private connections to AWS services without going through the internet.
 
-**File: `frontend/Dockerfile`**
+### What is ECR?
 
-```dockerfile
-# Stage 1: Build React App
-FROM node:18-alpine AS build
+**Amazon ECR** (Elastic Container Registry) is like Docker Hub, but private and hosted by AWS. You push your Docker images there, and your EC2 instances can pull them.
 
-WORKDIR /app
-
-# Copy package files
-COPY package*.json ./
-
-# Install dependencies
-RUN npm ci
-
-# Copy source code
-COPY . .
-
-# Build the React app
-RUN npm run build
-
-# Stage 2: Serve with Apache
-FROM httpd:alpine
-
-# Enable required Apache modules
-RUN sed -i '/LoadModule proxy_module/s/^#//g' /usr/local/apache2/conf/httpd.conf && \
-    sed -i '/LoadModule proxy_http_module/s/^#//g' /usr/local/apache2/conf/httpd.conf && \
-    sed -i '/LoadModule rewrite_module/s/^#//g' /usr/local/apache2/conf/httpd.conf
-
-# Copy custom Apache config
-COPY apache.conf /usr/local/apache2/conf/extra/httpd-vhosts.conf
-
-# Enable virtual hosts config
-RUN echo "Include conf/extra/httpd-vhosts.conf" >> /usr/local/apache2/conf/httpd.conf
-
-# Copy built React app
-COPY --from=build /app/build /usr/local/apache2/htdocs/
-
-# Expose port 80
-EXPOSE 80
-
-CMD ["httpd-foreground"]
-```
-
----
-
-## Frontend Apache Config
-
-**File: `frontend/apache.conf`**
-
-```apache
-<VirtualHost *:80>
-    ServerName localhost
-    DocumentRoot "/usr/local/apache2/htdocs"
-
-    # Serve React static files
-    <Directory "/usr/local/apache2/htdocs">
-        Options Indexes FollowSymLinks
-        AllowOverride All
-        Require all granted
-        
-        # Enable React Router - redirect all requests to index.html
-        RewriteEngine On
-        RewriteBase /
-        RewriteCond %{REQUEST_FILENAME} !-f
-        RewriteCond %{REQUEST_FILENAME} !-d
-        RewriteCond %{REQUEST_URI} !^/api
-        RewriteRule ^ index.html [L]
-    </Directory>
-
-    # Proxy API requests to backend (private EC2)
-    # The BACKEND_PRIVATE_IP will be replaced during deployment
-    ProxyPreserveHost On
-    ProxyPass /api/ http://BACKEND_PRIVATE_IP:5000/
-    ProxyPassReverse /api/ http://BACKEND_PRIVATE_IP:5000/
-
-    # Logging
-    ErrorLog /proc/self/fd/2
-    CustomLog /proc/self/fd/1 common
-</VirtualHost>
-```
-
----
-
-## Backend Dockerfile
-
-**File: `backend/Dockerfile`**
-
-```dockerfile
-FROM node:18-alpine
-
-WORKDIR /app
-
-# Copy package files
-COPY package*.json ./
-
-# Install production dependencies only
-RUN npm ci --omit=dev
-
-# Copy source code
-COPY . .
-
-# Expose backend port
-EXPOSE 5000
-
-# Start the server
-CMD ["node", "index.js"]
-```
-
----
-
-# Part 3: GitHub Actions Workflows
-
-## Frontend Workflow (Apache)
-
-**File: `.github/workflows/deploy-frontend.yml`**
-
-```yaml
-name: Deploy Frontend
-
-on:
-  push:
-    branches: [main]
-    paths:
-      - 'frontend/**'
-  workflow_dispatch:
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Prepare apache config with backend IP
-        working-directory: frontend
-        run: |
-          sed -i "s/BACKEND_PRIVATE_IP/${{ secrets.BACKEND_PRIVATE_IP }}/g" apache.conf
-
-      - name: Copy frontend source to EC2
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.FRONTEND_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: "frontend/*"
-          target: "app"
-          strip_components: 1
-
-      - name: Build and Deploy on EC2
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.FRONTEND_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
-          command_timeout: 15m
-          script: |
-            cd app
-            
-            # Install Docker if not present
-            if ! command -v docker &> /dev/null; then
-              curl -fsSL https://get.docker.com -o get-docker.sh
-              sudo sh get-docker.sh
-              sudo usermod -aG docker ubuntu
-            fi
-            
-            # Build and run Docker container (Dockerfile handles React build)
-            sudo docker stop frontend || true
-            sudo docker rm frontend || true
-            sudo docker build -t frontend .
-            sudo docker run -d --name frontend -p 80:80 --restart unless-stopped frontend
-            
-            echo "Frontend deployed successfully!"
-```
-
----
-
-## Backend Workflow (NAT Gateway Version)
-
-**File: `terraform-practice/deploy-backend.yml`**
-
-This version assumes NAT Gateway is enabled for private subnet internet access.
-
-```yaml
-name: Deploy Backend
-
-on:
-  push:
-    branches: [main]
-    paths:
-      - 'backend/**'
-  workflow_dispatch:
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Copy backend source to Private EC2 (via Jump Host)
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.BACKEND_PRIVATE_IP }}
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
-          proxy_host: ${{ secrets.FRONTEND_HOST }}
-          proxy_username: ubuntu
-          proxy_key: ${{ secrets.EC2_SSH_KEY }}
-          source: "backend/*"
-          target: "app"
-          strip_components: 1
-
-      - name: Deploy on Private Backend EC2
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.BACKEND_PRIVATE_IP }}
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
-          proxy_host: ${{ secrets.FRONTEND_HOST }}
-          proxy_username: ubuntu
-          proxy_key: ${{ secrets.EC2_SSH_KEY }}
-          command_timeout: 15m
-          script: |
-            cd app
-            
-            # Create .env file
-            echo "MONGODB_URL=${{ secrets.MONGODB_URL }}" > .env
-            echo "PORT=5000" >> .env
-            
-            # Install Docker if not present
-            if ! command -v docker &> /dev/null; then
-              curl -fsSL https://get.docker.com -o get-docker.sh
-              sudo sh get-docker.sh
-              sudo usermod -aG docker ubuntu
-            fi
-            
-            # Build and run Docker container
-            sudo docker stop backend || true
-            sudo docker rm backend || true
-            sudo docker build -t backend .
-            sudo docker run -d --name backend -p 5000:5000 --env-file .env --restart unless-stopped backend
-            
-            echo "Backend deployed successfully!"
-```
-
-**SSH Jump Explained:**
-```
-GitHub Actions ──SSH──> Frontend EC2 ──SSH──> Backend EC2
-                        (proxy_host)          (host)
-```
-
-The `proxy_host` parameter makes the action SSH to frontend first, then SSH from there to backend.
-
----
-
-# Part 4: Alternative Options
-
-## Alternative 1: Nginx Instead of Apache
-
-### nginx-option/Dockerfile
-
-```dockerfile
-# Stage 1: Build React App
-FROM node:18-alpine AS build
-
-WORKDIR /app
-
-# Copy package files
-COPY package*.json ./
-
-# Install dependencies
-RUN npm ci
-
-# Copy source code
-COPY . .
-
-# Build the React app
-RUN npm run build
-
-# Stage 2: Serve with Nginx
-FROM nginx:alpine
-
-# Copy custom nginx config
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-# Copy built React app
-COPY --from=build /app/build /usr/share/nginx/html
-
-# Expose port 80
-EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
-```
-
-### nginx-option/nginx.conf
-
-```nginx
-server {
-    listen 80;
-    server_name _;
-
-    # Serve React static files
-    location / {
-        root /usr/share/nginx/html;
-        index index.html;
-        try_files $uri $uri/ /index.html;
-    }
-
-    # Proxy API requests to backend (private EC2)
-    # The BACKEND_PRIVATE_IP will be replaced during deployment
-    location /api/ {
-        proxy_pass http://BACKEND_PRIVATE_IP:5000/;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_cache_bypass $http_upgrade;
-    }
-}
-```
-
-### nginx-option/deploy-frontend-nginx.yml
-
-```yaml
-name: Deploy Frontend (Nginx Version)
-
-on:
-  push:
-    branches: [main]
-    paths:
-      - 'frontend/**'
-  workflow_dispatch:
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Prepare nginx config with backend IP
-        working-directory: frontend
-        run: |
-          sed -i "s/BACKEND_PRIVATE_IP/${{ secrets.BACKEND_PRIVATE_IP }}/g" nginx.conf
-
-      - name: Copy frontend source to EC2
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.FRONTEND_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: "frontend/*"
-          target: "app"
-          strip_components: 1
-
-      - name: Build and Deploy on EC2
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.FRONTEND_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
-          command_timeout: 15m
-          script: |
-            cd app
-            
-            # Install Docker if not present
-            if ! command -v docker &> /dev/null; then
-              curl -fsSL https://get.docker.com -o get-docker.sh
-              sudo sh get-docker.sh
-              sudo usermod -aG docker ubuntu
-            fi
-            
-            # Build and run Docker container (Dockerfile handles React build)
-            sudo docker stop frontend || true
-            sudo docker rm frontend || true
-            sudo docker build -t frontend .
-            sudo docker run -d --name frontend -p 80:80 --restart unless-stopped frontend
-            
-            echo "Frontend deployed successfully!"
-```
-
----
-
-## Alternative 2: ECR + VPC Endpoints (No NAT Gateway)
-
-Use this if you want to avoid NAT Gateway costs (~$32/mo) but still need private subnet to pull Docker images.
-
-### ecr-option/ecr.tf
+### Terraform Code
 
 ```hcl
-# --- ECR Repository for Backend ---
-
+# Create an ECR repository to store our backend image
 resource "aws_ecr_repository" "backend" {
-  name                 = "mern-backend"
+  name = "mern-backend"
   image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = false
-  }
-
-  tags = {
-    Name = "mern-backend-ecr"
-  }
 }
 
-# --- VPC Endpoints for ECR (allows private subnet to pull images WITHOUT NAT) ---
-
-# Security group for VPC endpoints
+# Security group for the VPC endpoints
 resource "aws_security_group" "vpc_endpoints_sg" {
-  name        = "vpc-endpoints-sg"
-  description = "Security group for VPC endpoints"
-  vpc_id      = aws_vpc.my-vpc.id
+  name   = "vpc-endpoints-sg"
+  vpc_id = aws_vpc.my-vpc.id
 
+  # Allow HTTPS traffic (ECR uses HTTPS)
   ingress {
     from_port       = 443
     to_port         = 443
@@ -1108,13 +135,9 @@ resource "aws_security_group" "vpc_endpoints_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-
-  tags = {
-    Name = "vpc-endpoints-sg"
-  }
 }
 
-# ECR API endpoint
+# ECR API Endpoint - for ECR API calls
 resource "aws_vpc_endpoint" "ecr_api" {
   vpc_id              = aws_vpc.my-vpc.id
   service_name        = "com.amazonaws.us-east-1.ecr.api"
@@ -1122,13 +145,9 @@ resource "aws_vpc_endpoint" "ecr_api" {
   subnet_ids          = [aws_subnet.private_subnet_1.id]
   security_group_ids  = [aws_security_group.vpc_endpoints_sg.id]
   private_dns_enabled = true
-
-  tags = {
-    Name = "ecr-api-endpoint"
-  }
 }
 
-# ECR Docker endpoint
+# ECR Docker Endpoint - for docker pull/push commands
 resource "aws_vpc_endpoint" "ecr_dkr" {
   vpc_id              = aws_vpc.my-vpc.id
   service_name        = "com.amazonaws.us-east-1.ecr.dkr"
@@ -1136,92 +155,312 @@ resource "aws_vpc_endpoint" "ecr_dkr" {
   subnet_ids          = [aws_subnet.private_subnet_1.id]
   security_group_ids  = [aws_security_group.vpc_endpoints_sg.id]
   private_dns_enabled = true
-
-  tags = {
-    Name = "ecr-dkr-endpoint"
-  }
 }
 
-# S3 endpoint (ECR stores images in S3)
+# S3 Endpoint - ECR stores Docker layers in S3
 resource "aws_vpc_endpoint" "s3" {
   vpc_id            = aws_vpc.my-vpc.id
   service_name      = "com.amazonaws.us-east-1.s3"
   vpc_endpoint_type = "Gateway"
   route_table_ids   = [aws_route_table.private_RT_1.id]
-
-  tags = {
-    Name = "s3-endpoint"
-  }
-}
-
-# --- Outputs ---
-
-output "ecr_repository_url" {
-  value = aws_ecr_repository.backend.repository_url
 }
 ```
 
-### ecr-option/deploy-backend-ecr.yml
+**Important Limitation:** With VPC Endpoints alone, you can only pull images from ECR, not Docker Hub. So you'd need to:
+1. Build your images (including MongoDB) in GitHub Actions
+2. Push them to ECR
+3. Pull from ECR on your private EC2
+
+---
+
+# Part 2: Deploying the Frontend
+
+Now let's set up the frontend. We'll show both Nginx and Apache options.
+
+## Understanding the Frontend's Job
+
+The frontend does two things:
+1. **Serves the React app** (static HTML/CSS/JS files)
+2. **Proxies API requests** to the backend (so users don't need to know the backend's address)
+
+```
+User Request: /api/todos
+       ↓
+Frontend (Nginx/Apache): "This is for /api, let me forward it"
+       ↓
+Backend: Here's the data
+       ↓
+Frontend: Returns data to user
+```
+
+---
+
+## Option A: Using Nginx
+
+**Nginx** is a lightweight, high-performance web server. It's great for serving static files and reverse proxying.
+
+### Step 1: Create the Dockerfile
+
+```dockerfile
+# Stage 1: Build the React app
+# We use Node.js to run 'npm run build'
+FROM node:18-alpine AS build
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci                    # Install dependencies
+COPY . .
+RUN npm run build             # Creates the 'build' folder
+
+# Stage 2: Serve with Nginx
+# Now we copy only the built files (much smaller!)
+FROM nginx:alpine
+
+# Copy our custom nginx config
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copy the React build output
+COPY --from=build /app/build /usr/share/nginx/html
+
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+```
+
+**Why Two Stages?**
+- The first stage has Node.js and all dev dependencies (~500MB)
+- The second stage only has Nginx and the built files (~25MB)
+- This makes our image much smaller and faster to deploy
+
+### Step 2: Create nginx.conf
+
+```nginx
+server {
+    listen 80;
+    server_name _;
+
+    # Serve React static files
+    location / {
+        root /usr/share/nginx/html;
+        index index.html;
+        
+        # This is important for React Router!
+        # If a file doesn't exist, serve index.html
+        try_files $uri $uri/ /index.html;
+    }
+
+    # Proxy API requests to the backend
+    # BACKEND_PRIVATE_IP will be replaced during deployment
+    location /api/ {
+        proxy_pass http://BACKEND_PRIVATE_IP:5000/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+```
+
+**What Does This Do?**
+- `location /` - Serves React files, with SPA (Single Page App) support
+- `location /api/` - Forwards requests to the backend server
+- `BACKEND_PRIVATE_IP` - A placeholder we'll replace during deployment
+
+### Step 3: Create the GitHub Workflow
 
 ```yaml
-name: Deploy Backend (ECR Version)
-
-# This workflow uses ECR + VPC Endpoints instead of NAT Gateway
-# Use this if you want to avoid NAT Gateway costs (~$32/mo)
-# but still need private subnet to pull Docker images
+name: Deploy Frontend (Nginx)
 
 on:
   push:
     branches: [main]
-    paths:
-      - 'backend/**'
-  workflow_dispatch:
-
-env:
-  AWS_REGION: us-east-1
-  ECR_REPOSITORY: mern-backend
+    paths: ['frontend/**']    # Only run when frontend changes
+  workflow_dispatch:          # Allow manual trigger
 
 jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
-    outputs:
-      image: ${{ steps.build-image.outputs.image }}
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Build and push Docker image to ECR
-        id: build-image
-        working-directory: backend
-        run: |
-          IMAGE_TAG=${{ github.sha }}
-          ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}
-          
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:latest" >> $GITHUB_OUTPUT
-
   deploy:
     runs-on: ubuntu-latest
-    needs: build-and-push
     
     steps:
-      - name: Deploy to Private Backend EC2
+      # 1. Get our code
+      - uses: actions/checkout@v4
+
+      # 2. Replace the placeholder with actual backend IP
+      - name: Configure backend IP
+        run: |
+          sed -i "s/BACKEND_PRIVATE_IP/${{ secrets.BACKEND_PRIVATE_IP }}/g" frontend/nginx.conf
+
+      # 3. Copy files to the EC2 server
+      - name: Copy to server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.FRONTEND_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "frontend/*"
+          target: "app"
+          strip_components: 1    # Remove 'frontend' from path
+
+      # 4. SSH into server and build/run Docker container
+      - name: Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.FRONTEND_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd app
+            
+            # Install Docker if not already installed
+            if ! command -v docker &> /dev/null; then
+              curl -fsSL https://get.docker.com | sudo sh
+            fi
+            
+            # Stop and remove old container
+            sudo docker stop frontend || true
+            sudo docker rm frontend || true
+            
+            # Build new image and run
+            sudo docker build -t frontend .
+            sudo docker run -d \
+              --name frontend \
+              -p 80:80 \
+              --restart unless-stopped \
+              frontend
+            
+            echo "Frontend deployed!"
+```
+
+---
+
+## Option B: Using Apache
+
+**Apache** is the traditional web server. It's more configurable but slightly heavier than Nginx.
+
+### Dockerfile
+
+```dockerfile
+FROM node:18-alpine AS build
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+FROM httpd:alpine
+
+# Enable required Apache modules
+# These are commented out by default, we uncomment them
+RUN sed -i '/LoadModule proxy_module/s/^#//g' /usr/local/apache2/conf/httpd.conf && \
+    sed -i '/LoadModule proxy_http_module/s/^#//g' /usr/local/apache2/conf/httpd.conf && \
+    sed -i '/LoadModule rewrite_module/s/^#//g' /usr/local/apache2/conf/httpd.conf
+
+# Add our virtual host config
+COPY apache.conf /usr/local/apache2/conf/extra/httpd-vhosts.conf
+RUN echo "Include conf/extra/httpd-vhosts.conf" >> /usr/local/apache2/conf/httpd.conf
+
+COPY --from=build /app/build /usr/local/apache2/htdocs/
+
+EXPOSE 80
+CMD ["httpd-foreground"]
+```
+
+### apache.conf
+
+```apache
+<VirtualHost *:80>
+    DocumentRoot "/usr/local/apache2/htdocs"
+
+    <Directory "/usr/local/apache2/htdocs">
+        # Enable .htaccess-like rewrite rules
+        RewriteEngine On
+        
+        # If the file doesn't exist, serve index.html (for React Router)
+        RewriteCond %{REQUEST_FILENAME} !-f
+        RewriteCond %{REQUEST_URI} !^/api
+        RewriteRule ^ index.html [L]
+    </Directory>
+
+    # Proxy /api/* requests to backend
+    ProxyPass /api/ http://BACKEND_PRIVATE_IP:5000/
+    ProxyPassReverse /api/ http://BACKEND_PRIVATE_IP:5000/
+</VirtualHost>
+```
+
+The workflow is identical to Nginx, just replace `nginx.conf` with `apache.conf`.
+
+---
+
+# Part 3: Deploying the Backend
+
+Now for the interesting part - deploying to a **private subnet** that we can't directly access from the internet.
+
+## The SSH Jump Trick
+
+Since we can't SSH directly to the private EC2, we go through the frontend:
+
+```
+GitHub Actions → Frontend EC2 → Backend EC2
+                 (jump host)    (destination)
+```
+
+The `appleboy/scp-action` and `appleboy/ssh-action` both support this with `proxy_host` parameters.
+
+---
+
+## Option A: Standalone Docker (MongoDB Atlas)
+
+Use this if your MongoDB is hosted on **MongoDB Atlas** (the cloud service).
+
+### Dockerfile
+
+```dockerfile
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Copy package files first (for better caching)
+COPY package*.json ./
+
+# Install only production dependencies
+RUN npm ci --omit=dev
+
+COPY . .
+
+EXPOSE 5000
+CMD ["node", "index.js"]
+```
+
+### Workflow
+
+```yaml
+name: Deploy Backend (MongoDB Atlas)
+
+on:
+  push:
+    branches: [main]
+    paths: ['backend/**']
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Notice the proxy_host - this is the "jump" through frontend
+      - name: Copy to private EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.BACKEND_PRIVATE_IP }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          proxy_host: ${{ secrets.FRONTEND_HOST }}      # Jump through frontend
+          proxy_username: ubuntu
+          proxy_key: ${{ secrets.EC2_SSH_KEY }}
+          source: "backend/*"
+          target: "app"
+          strip_components: 1
+
+      - name: Deploy
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.BACKEND_PRIVATE_IP }}
@@ -1230,98 +469,172 @@ jobs:
           proxy_host: ${{ secrets.FRONTEND_HOST }}
           proxy_username: ubuntu
           proxy_key: ${{ secrets.EC2_SSH_KEY }}
-          command_timeout: 15m
           script: |
-            # Install Docker if not present
-            if ! command -v docker &> /dev/null; then
-              curl -fsSL https://get.docker.com -o get-docker.sh
-              sudo sh get-docker.sh
-              sudo usermod -aG docker ubuntu
-            fi
+            cd app
             
-            # Login to ECR (via VPC Endpoint)
-            aws ecr get-login-password --region us-east-1 | sudo docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
-            
-            # Create .env file
+            # Create .env file with MongoDB Atlas URL
             echo "MONGODB_URL=${{ secrets.MONGODB_URL }}" > .env
             echo "PORT=5000" >> .env
             
-            # Pull and run Docker container from ECR
+            if ! command -v docker &> /dev/null; then
+              curl -fsSL https://get.docker.com | sudo sh
+            fi
+            
             sudo docker stop backend || true
             sudo docker rm backend || true
-            sudo docker pull ${{ needs.build-and-push.outputs.image }}
-            sudo docker run -d --name backend -p 5000:5000 --env-file .env --restart unless-stopped ${{ needs.build-and-push.outputs.image }}
+            sudo docker build -t backend .
+            sudo docker run -d \
+              --name backend \
+              -p 5000:5000 \
+              --env-file .env \
+              --restart unless-stopped \
+              backend
+```
+
+---
+
+## Option B: Docker Compose (Local MongoDB)
+
+Use this if you want MongoDB running on the same server as the backend. This uses the official `mongo:6` image from Docker Hub.
+
+### What is Docker Compose?
+
+**Docker Compose** lets you define and run multiple containers together. Instead of running separate `docker run` commands, you describe everything in a YAML file.
+
+### docker-compose.yml
+
+```yaml
+version: '3.8'
+
+services:
+  # Our Express backend
+  backend:
+    build: .                              # Build from Dockerfile in current dir
+    container_name: backend
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGODB_URL=mongodb://mongo:27017/todos   # 'mongo' is the service name below
+      - PORT=5000
+    depends_on:
+      - mongo                             # Wait for mongo to start first
+    restart: unless-stopped
+
+  # MongoDB database
+  mongo:
+    image: mongo:6                        # Official MongoDB image from Docker Hub
+    container_name: mongodb
+    volumes:
+      - mongo_data:/data/db               # Persist data even if container restarts
+    restart: unless-stopped
+
+# Named volume for data persistence
+volumes:
+  mongo_data:
+```
+
+**Key Points:**
+- `mongo:6` is the official MongoDB Docker image (version 6)
+- The `mongo_data` volume ensures data isn't lost when containers restart
+- Containers can reach each other by service name (`mongo` instead of IP address)
+
+### Workflow
+
+```yaml
+name: Deploy Backend (Docker Compose)
+
+on:
+  push:
+    branches: [main]
+    paths: ['backend/**']
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy to private EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.BACKEND_PRIVATE_IP }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          proxy_host: ${{ secrets.FRONTEND_HOST }}
+          proxy_username: ubuntu
+          proxy_key: ${{ secrets.EC2_SSH_KEY }}
+          source: "backend/*"
+          target: "app"
+          strip_components: 1
+
+      - name: Deploy with Docker Compose
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.BACKEND_PRIVATE_IP }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          proxy_host: ${{ secrets.FRONTEND_HOST }}
+          proxy_username: ubuntu
+          proxy_key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd app
             
-            echo "Backend deployed successfully!"
+            # Install Docker
+            if ! command -v docker &> /dev/null; then
+              curl -fsSL https://get.docker.com | sudo sh
+            fi
+            
+            # Install Docker Compose
+            if ! command -v docker-compose &> /dev/null; then
+              sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" \
+                -o /usr/local/bin/docker-compose
+              sudo chmod +x /usr/local/bin/docker-compose
+            fi
+            
+            # Stop old containers and start fresh
+            sudo docker-compose down || true
+            sudo docker-compose up -d --build
+            
+            echo " Backend + MongoDB deployed!"
 ```
 
 ---
 
-# Part 5: GitHub Secrets Configuration
+# Part 4: Setting Up GitHub Secrets
 
-## Required Secrets
+Go to your GitHub repository → Settings → Secrets and variables → Actions → New repository secret
 
-| Secret | Value | Source |
-|--------|-------|--------|
-| `EC2_SSH_KEY` | Content of `terraforms-key.pem` | Terraform output |
-| `FRONTEND_HOST` | Public IP of frontend EC2 | `terraform output web_server_public_ip` |
-| `BACKEND_PRIVATE_IP` | Private IP of backend EC2 | AWS Console or state file |
-| `MONGODB_URL` | MongoDB connection string | MongoDB Atlas or local |
-
-## Additional Secrets for ECR Option
-
-| Secret | Value | Source |
-|--------|-------|--------|
-| `AWS_ACCESS_KEY_ID` | IAM access key | `terraform output access_key_id` |
-| `AWS_SECRET_ACCESS_KEY` | IAM secret key | `terraform output secret_access_key` |
-| `ECR_REGISTRY` | ECR registry URL | `terraform output ecr_repository_url` |
+| Secret Name | Value | How to Get It |
+|-------------|-------|---------------|
+| `EC2_SSH_KEY` | Content of your `.pem` file | Copy from `terraforms-key.pem` |
+| `FRONTEND_HOST` | `54.xxx.xxx.xxx` | From Terraform output or AWS Console |
+| `BACKEND_PRIVATE_IP` | `10.0.1.xxx` | From AWS Console (private IP) |
+| `MONGODB_URL` | `mongodb+srv://...` | From MongoDB Atlas (if using) |
 
 ---
 
-# Part 6: Deployment Steps
+# Quick Reference: Which Setup to Choose?
 
-## 1. Apply Terraform
-
-```bash
-cd terraform-practice
-terraform init
-terraform apply
-```
-
-## 2. Get Outputs
-
-```bash
-terraform output web_server_public_ip
-terraform output -raw secret_access_key  # For ECR option
-```
-
-## 3. Configure GitHub Secrets
-
-Go to GitHub → Repository → Settings → Secrets and variables → Actions
-
-Add all required secrets from Part 5.
-
-## 4. Push to Main
-
-- Changes to `frontend/*` trigger frontend deployment
-- Changes to `backend/*` trigger backend deployment
-
-## 5. Access Application
-
-Open `http://<FRONTEND_PUBLIC_IP>` in browser
+| Your Situation | Frontend | Backend | Database |
+|----------------|----------|---------|----------|
+| Simple deployment, using MongoDB Atlas | Nginx or Apache | Standalone Docker | MongoDB Atlas |
+| Want everything self-hosted | Nginx or Apache | Docker Compose | Local MongoDB |
+| Want to minimize costs | Nginx | Docker Compose | Local MongoDB |
 
 ---
 
-# Summary: Option Comparison
+# Summary
 
-| Aspect | NAT Gateway | ECR + VPC Endpoints |
-|--------|-------------|---------------------|
-| **Monthly Cost** | ~$32 | ~$14.40 |
-| **Complexity** | Simple | More setup |
-| **Build Location** | On EC2 | In GitHub Actions |
-| **Internet for Private EC2** | Full outbound | Only AWS services |
+Congratulations! You now understand how to:
 
-| Frontend Server | Image Size | Memory | Config |
-|-----------------|------------|--------|--------|
-| **Apache** | ~60MB | Higher | More verbose |
-| **Nginx** | ~23MB | Lower | Simpler |
+1. Use **NAT Gateway** or **VPC Endpoints** for private subnet internet access
+2. Deploy a React frontend with **Nginx** or **Apache**
+3. Deploy an Express backend using **standalone Docker** or **Docker Compose**
+4. Run MongoDB using either **Atlas** (cloud) or **local container** (`mongo:6` image)
+5. Set up **GitHub Actions** for automated deployments
+6. Use **SSH Jump** to deploy to private subnets
+
+The key takeaway: **Keep sensitive services in private subnets**, and use the frontend as both a web server and a gateway to your backend.
+
+Happy deploying! 

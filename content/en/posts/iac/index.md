@@ -395,6 +395,105 @@ resource "aws_security_group" "db_sg" {
 }
 ```
 
+## nat_gateway.tf
+
+NAT Gateway allows instances in private subnets to access the internet for outbound traffic (like downloading Docker images, npm packages) while remaining inaccessible from the internet.
+
+```hcl
+# --- NAT Gateway for AZ 1 ---
+
+# Elastic IP for NAT Gateway
+resource "aws_eip" "nat_1" {
+  domain = "vpc"
+
+  tags = {
+    Name = "NAT-EIP-AZ1"
+  }
+}
+
+# NAT Gateway in public subnet
+resource "aws_nat_gateway" "nat_1" {
+  allocation_id = aws_eip.nat_1.id
+  subnet_id     = aws_subnet.public_subnet_1.id
+
+  tags = {
+    Name = "NAT-Gateway-AZ1"
+  }
+
+  depends_on = [aws_internet_gateway.gw]
+}
+
+# --- NAT Gateway for AZ 2 (Optional - for high availability) ---
+
+resource "aws_eip" "nat_2" {
+  domain = "vpc"
+
+  tags = {
+    Name = "NAT-EIP-AZ2"
+  }
+}
+
+resource "aws_nat_gateway" "nat_2" {
+  allocation_id = aws_eip.nat_2.id
+  subnet_id     = aws_subnet.public_subnet_2.id
+
+  tags = {
+    Name = "NAT-Gateway-AZ2"
+  }
+
+  depends_on = [aws_internet_gateway.gw]
+}
+```
+
+**Key Points:**
+- **Elastic IP**: Static public IP assigned to NAT Gateway
+- **Location**: NAT Gateway must be in a **public subnet**
+- **Cost**: ~$32/month per NAT Gateway + data processing charges
+
+---
+
+## Private Route Tables with NAT
+
+Update the private route tables to route internet traffic through the NAT Gateway:
+
+```hcl
+# route tables private 1 - with NAT Gateway route
+resource "aws_route_table" "private_RT_1" {
+  vpc_id = aws_vpc.my-vpc.id
+
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.nat_1.id
+  }
+
+  tags = {
+    Name = "private_RT_1"
+  }
+}
+
+resource "aws_route_table" "private_RT_2" {
+  vpc_id = aws_vpc.my-vpc.id
+
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.nat_2.id
+  }
+
+  tags = {
+    Name = "private_RT_2"
+  }
+}
+```
+
+**Traffic Flow with NAT Gateway:**
+```
+Private EC2 → Private Route Table → NAT Gateway → Internet Gateway → Internet
+     ↑                                    ↓
+     └──────────── Response ──────────────┘
+```
+
+---
+
 ## Step 6: IAM User (iam.tf)
 
 We create an IAM user with AdministratorAccess and generate credentials.
