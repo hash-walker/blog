@@ -1,5 +1,5 @@
 ---
-title: "CI/CD Pipeline: Deploying MERN Stack to AWS with Terraform
+title: "CI/CD Pipeline: Deploying MERN Stack to AWS with Terraform"
 date: 2025-12-30T14:21:30+05:00
 draft: false
 ---
