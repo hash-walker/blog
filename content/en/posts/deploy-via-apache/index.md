@@ -197,35 +197,6 @@ Frontend: Returns data to user
 
 ##Using Apache
 
-**Apache** is the traditional web server. It's more configurable but slightly heavier than Nginx.
-
-### Dockerfile
-
-```dockerfile
-FROM node:18-alpine AS build
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-RUN npm run build
-
-FROM httpd:alpine
-
-# Enable required Apache modules
-# These are commented out by default, we uncomment them
-RUN sed -i '/LoadModule proxy_module/s/^#//g' /usr/local/apache2/conf/httpd.conf && \
-    sed -i '/LoadModule proxy_http_module/s/^#//g' /usr/local/apache2/conf/httpd.conf && \
-    sed -i '/LoadModule rewrite_module/s/^#//g' /usr/local/apache2/conf/httpd.conf
-
-# Add our virtual host config
-COPY apache.conf /usr/local/apache2/conf/extra/httpd-vhosts.conf
-RUN echo "Include conf/extra/httpd-vhosts.conf" >> /usr/local/apache2/conf/httpd.conf
-
-COPY --from=build /app/build /usr/local/apache2/htdocs/
-
-EXPOSE 80
-CMD ["httpd-foreground"]
-```
 
 ### apache.conf
 
