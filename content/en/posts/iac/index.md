@@ -566,6 +566,7 @@ resource "aws_instance" "ec2_web_1" {
 
   key_name = aws_key_pair.terraforms_key.key_name
 
+
   # --- WEB SERVER 1 ---
   user_data = <<-EOF
     #!/bin/bash
@@ -586,6 +587,11 @@ resource "aws_instance" "ec2_web_1" {
     # Allow ubuntu user to write to web dir (for deployment)
     chown -R ubuntu:ubuntu /var/www/html
     chmod -R 755 /var/www/html
+
+    # Install Docker
+    curl -fsSL https://get.docker.com -o get-docker.sh
+    sh get-docker.sh
+    usermod -aG docker ubuntu
     EOF
 
   tags = {
